@@ -19,6 +19,8 @@ from .util.box_ops import box_cxcywh_to_xyxy, generalized_box_iou, matched_boxli
 from detectron2.structures import Boxes, Instances
 from scipy.optimize import linear_sum_assignment
 
+
+
 #--------------- detection loss --------------------------
 class SetCriterion(nn.Module):
     """ This class computes the loss for MDR.
@@ -196,6 +198,183 @@ class SetCriterion(nn.Module):
             return losses, indices_without_aux         
         return losses
 
+
+#--------------- align detection loss --------------------------
+class AlignCriterion(nn.Module):
+    """ This class computes the loss for MDR++.
+    The process happens in two steps:
+        1) we compute hungarian assignment between ground truth boxes and the outputs of the model
+        2) we supervise each pair of matched ground-truth / prediction (supervise class and box)
+    """
+    def __init__(self, cfg, num_classes, matcher, weight_dict, eos_coef, losses, use_focal):
+        """ Create the criterion.
+        Parameters:
+            num_classes: number of object categories, omitting the special no-object category
+            matcher: module able to compute a matching between targets and proposals
+            weight_dict: dict containing as key the names of the losses and as values their relative weight.
+            eos_coef: relative classification weight applied to the no-object category
+            losses: list of all the losses to be applied. See get_loss for list of available losses.
+        """
+        super().__init__()
+        self.cfg = cfg
+        self.num_classes = num_classes
+        self.matcher = matcher
+        self.weight_dict = weight_dict
+        self.eos_coef = eos_coef
+        self.losses = losses
+        self.use_focal = use_focal
+        self.pos_norm_type = 'softmax'
+        if self.use_focal:
+            self.focal_loss_alpha = cfg.MODEL.MDR.ALPHA
+            self.focal_loss_gamma = cfg.MODEL.MDR.GAMMA
+            self.tau=cfg.MODEL.MDR.TAU
+        else:
+            empty_weight = torch.ones(self.num_classes + 1)
+            empty_weight[-1] = self.eos_coef
+            self.register_buffer('empty_weight', empty_weight)
+
+    def loss_labels(self, outputs, targets, indices, num_boxes, log=False):
+        """Classification loss (NLL)
+        targets dicts must contain the key "labels" containing a tensor of dim [nb_target_boxes]
+        """
+        assert 'pred_logits' in outputs and 'pred_boxes' in outputs
+        src_logits = outputs['pred_logits']
+        src_boxes = outputs['pred_boxes'][idx]
+        target_boxes = torch.cat([t['boxes_xyxy'][i] for t, (_, i) in zip(targets, indices)], dim=0)
+
+        idx = self._get_src_permutation_idx(indices)
+        target_classes_o = torch.cat([t["labels"][J] for t, (_, J) in zip(targets, indices)])
+        pos_idx_c = idx + (target_classes_o.cpu(), )
+
+        prob = src_logits.sigmoid()
+        pos_weights = torch.zeros_like(src_logits)
+        neg_weights =  prob ** self.focal_loss_gamma
+        #ious_scores between matched boxes and GT boxes
+        iou_scores = torch.diag(box_ops.box_iou(box_cxcywh_to_xyxy(src_boxes), box_cxcywh_to_xyxy( target_boxes))[0])
+        #t is the quality metric
+        t = prob[pos_idx_c]**self.focal_loss_alpha * iou_scores ** (1-self.focal_loss_alpha)
+        t = torch.clamp(t, 0.01).detach()
+
+        pos_weights[pos_idx_c] = t 
+        neg_weights[pos_idx_c] = (1 -t)
+
+        loss = -pos_weights * prob.log() - neg_weights * (1-prob).log()
+
+        losses = {'loss_ce': loss.sum()}
+
+        if log:
+            # TODO this should probably be a separate loss, not hacked in this one here
+            losses['class_error'] = 100 - accuracy(src_logits[idx], target_classes_o)[0]
+        return losses
+
+
+    def loss_boxes(self, outputs, targets, indices, num_boxes):
+        """Compute the losses related to the bounding boxes, the L1 regression loss and the GIoU loss
+           targets dicts must contain the key "boxes" containing a tensor of dim [nb_target_boxes, 4]
+           The target boxes are expected in format (center_x, center_y, w, h), normalized by the image size.
+        """
+        assert 'pred_boxes' in outputs
+        idx = self._get_src_permutation_idx(indices)
+        src_boxes = outputs['pred_boxes'][idx]
+        target_boxes = torch.cat([t['boxes_xyxy'][i] for t, (_, i) in zip(targets, indices)], dim=0)
+
+        losses = {}
+        loss_giou = 1 - torch.diag(box_ops.generalized_box_iou(src_boxes, target_boxes))
+        losses['loss_giou'] = loss_giou.sum() / num_boxes
+
+        image_size = torch.cat([v["image_size_xyxy_tgt"] for v in targets])
+        src_boxes_ = src_boxes / image_size
+        target_boxes_ = target_boxes / image_size
+
+        loss_bbox = F.l1_loss(src_boxes_, target_boxes_, reduction='none')
+        losses['loss_bbox'] = loss_bbox.sum() / num_boxes
+
+        return losses
+
+
+    def _get_src_permutation_idx(self, indices):
+        # permute predictions following indices
+        batch_idx = torch.cat([torch.full_like(src, i) for i, (src, _) in enumerate(indices)])
+        src_idx = torch.cat([src for (src, _) in indices])
+        return batch_idx, src_idx
+
+    def _get_tgt_permutation_idx(self, indices):
+        # permute targets following indices
+        batch_idx = torch.cat([torch.full_like(tgt, i) for i, (_, tgt) in enumerate(indices)])
+        tgt_idx = torch.cat([tgt for (_, tgt) in indices])
+        return batch_idx, tgt_idx
+
+    def get_loss(self, loss, outputs, targets, indices, num_boxes, **kwargs):
+        loss_map = {
+            'labels': self.loss_labels,
+            'boxes': self.loss_boxes,
+        }
+        assert loss in loss_map, f'do you really want to compute {loss} loss?'
+        return loss_map[loss](outputs, targets, indices, num_boxes, **kwargs)
+
+    def forward(self, outputs, targets):
+        """ This performs the loss computation.
+        Parameters:
+             outputs:
+                {
+                    'pred_logits': outputs_class[-1], 
+                    'pred_boxes': outputs_coord[-1],
+                    'aux_outputs' : [{'pred_logits': a, 'pred_boxes': b},{},...]
+                }
+             targets: 
+                [
+                    {
+                    "labels" :一张图片上所有的标记类别，
+                    "boxes"  :归一化后的标记框坐标CX CY W H
+                    "boxes_xyxy" :未归一化的标记框坐标 xyxy 形状为(num_gt, 4)
+                    "image_size_xyxy" : 图像尺寸w h w h  
+                    "image_size_xyxy_tgt": 图像尺寸，但是张量形状变了, num_gt, 4
+                    "area": 每个gt的面积
+                    },
+                    ....
+                ] 长度==bs
+        """
+        outputs_without_aux = {k: v for k, v in outputs.items() if k != 'aux_outputs'}
+
+        # Retrieve the matching between the outputs of the last layer and the targets
+        indices_without_aux = self.matcher(outputs_without_aux, targets)
+        # 返回一个list 长度为bs 每一个元素是个tuple 每个tuple里有2个向量，
+        # 分别对应一张图片的proposal与gt之间的最优分配结果的行位置向量和列位置向量
+        # [tuple(row_inds:Tensor, col_inds:Tensor), ... ] lendth == bs
+        if self.cfg.MODEL.MDR.IS_TRAIN and self.cfg.MODEL.MDR.IS_FIX:
+            return None, indices_without_aux
+        # Compute the average number of target boxes accross all nodes, for normalization purposes
+        num_boxes = sum(len(t["labels"]) for t in targets)
+        num_boxes = torch.as_tensor([num_boxes], dtype=torch.float, device=next(iter(outputs.values())).device)
+        if is_dist_avail_and_initialized():
+            torch.distributed.all_reduce(num_boxes)
+        num_boxes = torch.clamp(num_boxes / get_world_size(), min=1).item()
+
+        # Compute all the requested losses
+        losses = {}
+        for loss in self.losses:
+            losses.update(self.get_loss(loss, outputs, targets, indices_without_aux, num_boxes))
+
+        # In case of auxiliary losses, we repeat this process with the output of each intermediate layer.
+        if 'aux_outputs' in outputs:
+            for i, aux_outputs in enumerate(outputs['aux_outputs']):
+                indices = self.matcher(aux_outputs, targets)
+                for loss in self.losses:
+                    if loss == 'masks':
+                        # Intermediate masks losses are too costly to compute, we ignore them.
+                        continue
+                    kwargs = {}
+                    if loss == 'labels':
+                        # Logging is enabled only for the last layer
+                        kwargs = {'log': False}
+                    l_dict = self.get_loss(loss, aux_outputs, targets, indices, num_boxes, **kwargs)
+                    l_dict = {k + f'_{i}': v for k, v in l_dict.items()}
+                    losses.update(l_dict)
+        if self.cfg.MODEL.MDR.IS_TRAIN:
+            return losses, indices_without_aux         
+        return losses
+
+
 class HungarianMatcher(nn.Module):
     """This class computes an assignment between the targets and the predictions of the network
 
@@ -297,7 +476,6 @@ class HungarianMatcher(nn.Module):
         # 而在匈牙利算法中，gt总是要匹配完的，只不过可能顺序不一样
         # 因此 数组(向量)长度 == 获得匹配的proposal数量 == num_gt
         # [tuple(row_inds:Tensor, col_inds:Tensor), ... ] lendth == bs
-
 
 #--------------- track loss --------------------------
 class TrackCriterion(nn.Module):
