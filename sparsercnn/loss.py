@@ -241,6 +241,7 @@ class AlignCriterion(nn.Module):
         src_boxes = outputs['pred_boxes'][idx]
         target_boxes = torch.cat([t['boxes_xyxy'][i] for t, (_, i) in zip(targets, indices)], dim=0)
 
+        losses = {}
         idx = self._get_src_permutation_idx(indices)
         target_classes_o = torch.cat([t["labels"][J] for t, (_, J) in zip(targets, indices)])
         pos_idx_c = idx + (target_classes_o.cpu(), )
@@ -257,9 +258,9 @@ class AlignCriterion(nn.Module):
         pos_weights[pos_idx_c] = t 
         neg_weights[pos_idx_c] = (1 -t)
 
-        loss = -pos_weights * prob.log() - neg_weights * (1-prob).log()
+        loss_class = -pos_weights * prob.log() - neg_weights * (1-prob).log()
 
-        losses = {'loss_ce': loss.sum()}
+        losses['loss_ce'] = loss_class.sum() / num_boxes
 
         if log:
             # TODO this should probably be a separate loss, not hacked in this one here
