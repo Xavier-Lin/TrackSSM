@@ -223,14 +223,14 @@ class AlignCriterion(nn.Module):
         self.eos_coef = eos_coef
         self.losses = losses
         self.use_focal = use_focal
-        self.pos_norm_type = 'softmax'
         if self.use_focal:
             self.focal_loss_alpha = cfg.MODEL.MDR.ALPHA
             self.focal_loss_gamma = cfg.MODEL.MDR.GAMMA
         else:
-            empty_weight = torch.ones(self.num_classes + 1)
-            empty_weight[-1] = self.eos_coef
-            self.register_buffer('empty_weight', empty_weight)
+            raise ValueError("not surpport CELoss now")
+            # empty_weight = torch.ones(self.num_classes + 1)
+            # empty_weight[-1] = self.eos_coef
+            # self.register_buffer('empty_weight', empty_weight)
 
     def loss_labels(self, outputs, targets, indices, num_boxes, log=False):
         """Classification loss (NLL)
