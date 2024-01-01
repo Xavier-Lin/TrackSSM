@@ -227,7 +227,6 @@ class AlignCriterion(nn.Module):
         if self.use_focal:
             self.focal_loss_alpha = cfg.MODEL.MDR.ALPHA
             self.focal_loss_gamma = cfg.MODEL.MDR.GAMMA
-            self.tau=cfg.MODEL.MDR.TAU
         else:
             empty_weight = torch.ones(self.num_classes + 1)
             empty_weight[-1] = self.eos_coef
