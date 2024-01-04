@@ -14,12 +14,12 @@ import torch.nn.functional as F
 from torch import nn
 from cython_bbox import bbox_overlaps as bbox_ious
 from detectron2.layers import ShapeSpec
-from detectron2.modeling import META_ARCH_REGISTRY, build_backbone, detector_postprocess
+from detectron2.modeling import META_ARCH_REGISTRY, build_backbone
 from detectron2.modeling.roi_heads import build_roi_heads
 from collections import deque
-from detectron2.structures import Boxes, ImageList, Instances
+from detectron2.structures import Boxes, ImageList, Instances, ROIMasks
 from .track_decoder import TrackSSM
-from .loss import SetCriterion, HungarianMatcher, TrackCriterion
+from .loss import SetCriterion, HungarianMatcher, TrackCriterion, AlignCriterion
 from .head import DynamicHead
 from .util.box_ops import box_cxcywh_to_xyxy, box_xyxy_to_cxcywh, box_iou, matched_boxlist_iou
 from .util.misc import nested_tensor_from_tensor_list
@@ -45,7 +45,7 @@ class MDR(nn.Module):
         self.num_proposals = cfg.MODEL.MDR.NUM_PROPOSALS
         self.hidden_dim = cfg.MODEL.MDR.HIDDEN_DIM
         self.num_heads = cfg.MODEL.MDR.NUM_HEADS
-        self.random_drop = 0.2
+        self.score_drop = 0.5
         self.iou_drop_thresh = 0.5
         # self.mem_bank_len = 5
 
@@ -103,7 +103,7 @@ class MDR(nn.Module):
  
         losses = ["labels", "boxes"]
 
-        self.criterion = SetCriterion(cfg=cfg,
+        self.criterion = AlignCriterion(cfg=cfg,
                                       num_classes=self.num_classes,
                                       matcher=matcher,
                                       weight_dict=weight_dict,
@@ -130,9 +130,9 @@ class MDR(nn.Module):
     
     
     def reset(self):
-        self.id_count = 0
+        self.id_count = 0 
         self.tracks = []
-        self.sort_tracker = BYTETracker()
+        # self.sort_tracker = BYTETracker()
         
     def _generate_empty_tracks(self):# 初始化目标实例的属性 一个目标对应一个查询 对应一个 目标id。对应一个 目标索引。对应一个 目标分数。对应一个预测的目标框。对应一个预测的目标类别，对应一个轨迹实例或者是一个检测实例 
         track_instances = Instances((1, 1))
@@ -166,8 +166,8 @@ class MDR(nn.Module):
         out['hs'] = outputs_embeddings # 最后一个stage的查询特征结果 
         return out
     
-    def _forward_track_decoder(self, features, track_instances):
-        outputs_class, outputs_coord, outputs_embeddings= self.ssm_decoder(features,  track_instances)
+    def _forward_track_decoder(self, features, track_instances, img_whwh):
+        outputs_class, outputs_coord, outputs_embeddings= self.ssm_decoder(features,  track_instances, img_whwh[0])
         out = {'pred_logits': outputs_class, 'pred_boxes': outputs_coord}
         out['hs'] = outputs_embeddings #  hidden_state_embedding
         return out
@@ -190,7 +190,9 @@ class MDR(nn.Module):
             det_out = self._forward_det_decoder(features, imgs_whwh, video_id)
             # random drop
             track_instances = self._random_drop(track_instances)
-            track_out = self._forward_track_decoder(srcs, track_instances)
+            img_whwh = imgs_whwh[video_id:video_id+1, None, :]
+            track_out = self._forward_track_decoder(srcs, track_instances, img_whwh)
+          
             out = {'det_out':det_out, 'track_out':track_out}
             
         pre_fpn_feats = features
@@ -281,17 +283,6 @@ class MDR(nn.Module):
                         # import pdb;pdb.set_trace()
                         tol_losses = {**det_loss_dict, **track_loss_dict}    
                         return tol_losses
-            
-                # 所有当前帧回归到前一帧（或后一帧）的轨迹预测信息 
-                # weight_dict = self.track_criterion.weight_dict
-                # for k in track_loss_dict.keys():
-                #     if k in weight_dict:
-                #         batch_track_loss_dict[f'f{vid}_'+ k] = track_loss_dict[k] * weight_dict[k]
-                #       #get track loss dict
-                #   out_loss_dict = {**loss_dict, **batch_track_loss_dict}
-                #   assert len(out_loss_dict) == len(loss_dict) + len(batch_track_loss_dict)    
-        
-    
         else:
             # input size with no_pad -- whwh   images are paded batch of input images
             if isinstance(images, (list, torch.Tensor)):
@@ -323,7 +314,7 @@ class MDR(nn.Module):
                     height = input_per_image.get("height", image_size[0])
                     width = input_per_image.get("width", image_size[1])
                     inp_boxes = results_per_image.pred_boxes.tensor.clone()
-                    post_dets, out_mask = detector_postprocess(
+                    post_dets, out_mask = self.detector_postprocess(
                         results_per_image, height, width, is_clip = False if "MOT17" in self.cfg.DATASETS.TEST_DATA.DATA_NAME else True
                     )
                     processed_results.append([post_dets, inp_boxes[out_mask]])
@@ -359,7 +350,7 @@ class MDR(nn.Module):
                     for results_per_image, input_per_image, image_size in zip(results, batched_inputs, images.image_sizes):
                         height = input_per_image.get("height", image_size[0])
                         width = input_per_image.get("width", image_size[1])
-                        r, _ = detector_postprocess(
+                        r, _ = self.detector_postprocess(
                             results_per_image, height, width, is_clip = False if "MOT17" in self.cfg.DATASETS.TEST_DATA.DATA_NAME else True
                         )
                         processed_results.append({"instances": r})
@@ -403,12 +394,12 @@ class MDR(nn.Module):
         new_det_instances.pred_boxes = det_res['pred_boxes'][0]
         new_det_instances.pred_embedding = det_res['hs'][0]
         num_dets = len(det_res['hs'][0])
-        new_det_instances.imgs_whwh = curr_targets["image_size_xyxy_tgt"][0].view(1, -1).repeat(num_dets, 1) if self.training else img_whwh.repeat(num_dets, 1)
+        new_det_instances.imgs_whwh = img_whwh.repeat(num_dets, 1)  
         
         if self.training:
+            # import pdb;pdb.set_trace()
             # the track id will be assigned by the mather.
-            det_loss_dict, indices_without_aux, matched_idx = \
-                self.match_for_single_frame(track_instances, det_res, curr_targets)
+            det_loss_dict, indices_without_aux, matched_idx = self.match_for_single_frame(track_instances, det_res, curr_targets)
             self.track_criterion.calc_loss_per_frame(track_instances, curr_targets, matched_idx)
             new_det_instances = new_det_instances[indices_without_aux[0][0]]
             # compute pairwise iou
@@ -438,7 +429,6 @@ class MDR(nn.Module):
             # each track will be assigned an unique global id by the track base.
             # import pdb;pdb.set_trace()
             track_instances = Instances.cat([new_det_instances, track_instances])
-            self.track_base.update(track_instances, 0.7, self.cfg.MODEL.MDR.TRACKING_SCORE)# 初始化新检测的轨迹 以及 去掉丢失时长超过5帧的老轨迹
 
         if not is_last:
             frame_res['track_instances'] = track_instances
@@ -449,7 +439,7 @@ class MDR(nn.Module):
     
     def match_for_single_frame(self, track_ist: Instances, det_res: dict, curr_gts: dict):# 
         matched_idx, num_disappear_trks =  self._track_association_with_ids(curr_gts['track_ids'], track_ist.track_ids)
-        matched_idx = torch.from_numpy(np.array(matched_idx)).to(track_ist.pred_boxes.device).view(-1, 2)
+        matched_idx = torch.from_numpy(np.array(matched_idx)).to(track_ist.pred_boxes.device).view(-1, 2).long()
         # get detection loss from per frame
         det_loss_dict, indices_without_aux = self.criterion(det_res, [curr_gts])#获得与gt匹配的1对1匹配对
         return det_loss_dict, indices_without_aux, matched_idx
@@ -517,7 +507,7 @@ class MDR(nn.Module):
                 result.pred_boxes = Boxes(box_pred_per_image)
                 result.scores = scores_per_image
                 result.pred_classes = labels_per_image
-                result.pred_feats = feat_pred_per_image
+                result.pred_embedding = feat_pred_per_image
                 # result.init_feats = init_feats_per_img
                 results.append(result)
 
@@ -538,17 +528,12 @@ class MDR(nn.Module):
     
     def _random_drop(self, matched_tracks:Instances): #track_instances.obj_idxes >= 0 
         if self.training:
-            active_track_instances = self._random_drop_tracks(matched_tracks)# 随机drop获得匹配的实例
+            active_track_instances = matched_tracks[matched_tracks.scores > self.score_drop] # 随机drop获得匹配的实例
             active_track_instances.track_ids[active_track_instances.iou <= self.iou_drop_thresh] = -1
         else:
             active_track_instances = matched_tracks[matched_tracks.track_ids >= 0]
         return active_track_instances
     
-    def _random_drop_tracks(self, track_instances: Instances) -> Instances:
-        if self.random_drop > 0 and len(track_instances) > 0:
-            keep_idxes = torch.rand_like(track_instances.scores) > self.random_drop
-            track_instances = track_instances[keep_idxes]
-        return track_instances
 
     def preprocess_image(self, inputs):
         """
@@ -605,7 +590,7 @@ class MDR(nn.Module):
         post_output, nms_out_index, conf_mask = self.postprocess(
             results[0].pred_boxes.tensor, results[0].pred_classes, results[0].scores, 1, self.cfg.MODEL.MDR.TRACKING_SCORE)
 
-        curr_pred_feats = results[0].pred_feats[conf_mask][nms_out_index].cpu().numpy()
+        curr_pred_feats = results[0].pred_embedding[conf_mask][nms_out_index].cpu().numpy()
         inp_boxes = results[1][conf_mask][nms_out_index].cpu().numpy()
         post_output = post_output.cpu().numpy()
         ret = []
@@ -645,11 +630,9 @@ class MDR(nn.Module):
             curr_results_post.scores, 
             num_classes = 1, 
             conf_thre  =self.cfg.MODEL.MDR.TRACKING_SCORE
-            # conf_thre = 0.2,
-            # nms_thre = 0.7
         )
         curr_res_instances = Instances((1,1))
-        curr_res_instances.pred_feats = curr_results_post.pred_feats[conf_mask][nms_out_index] 
+        curr_res_instances.pred_embedding = curr_results_post.pred_embedding[conf_mask][nms_out_index] 
         curr_res_instances.inp_boxes = curr_boxes_inp[conf_mask][nms_out_index] # 获取真正的当前帧检测
         curr_res_instances.post_boxes = post_output[:, :4]
         curr_res_instances.scores = post_output[:, 4]
@@ -685,12 +668,12 @@ class MDR(nn.Module):
                 inact_tracks_idx.append(i)
                 
         prev_active_tracks.inp_boxes = torch.as_tensor(act_bbox_inp, device=device, dtype=dtype)
-        prev_active_tracks.pred_feats = torch.as_tensor(act_pred_feats, device=device, dtype=dtype)
+        prev_active_tracks.pred_embedding = torch.as_tensor(act_pred_feats, device=device, dtype=dtype)
         prev_active_tracks.imgs_whwh = images_whwh.repeat(len(prev_active_tracks), 1)
         N = len(prev_active_tracks)
         
         pre_inactive_tracks.inp_boxes = torch.as_tensor(inact_bbox_inp, device=device, dtype=dtype)
-        pre_inactive_tracks.pred_feats = torch.as_tensor(inact_pred_feats, device=device, dtype=dtype)
+        pre_inactive_tracks.pred_embedding = torch.as_tensor(inact_pred_feats, device=device, dtype=dtype)
         pre_inactive_tracks.imgs_whwh = images_whwh.repeat(len(pre_inactive_tracks), 1)
         
         pre_tracks = Instances.cat([prev_active_tracks, pre_inactive_tracks])
@@ -700,21 +683,27 @@ class MDR(nn.Module):
         srcs = self.combine_fpn_features(self.tracks[-1], fpn_feats)
 
         # regressive det to tracks from prev_frame.   i_track_instances, vaild_pre_gt_boxes, vaild_pair_mask
-        track_scores, track_coords = self.refine_decoder(
+        track_scores, track_coords, track_emb = self.ssm_decoder(
             srcs,  
             pre_tracks
         )
-
+        
+        track_scores = track_scores[0].squeeze(-1).sigmoid().cpu().numpy()
+        track_emb = track_emb[0].cpu().numpy()
         remain_regress_boxes = (track_coords[0] / scale).cpu().numpy()
         track_coords_cpu = track_coords[0].cpu().numpy()
+        
         
         # import pdb;pdb.set_trace()
         # track_scores = track_scores.sigmoid()
         
         # import pdb;pdb.set_trace()
         # img = cv2.imread(inp_per_img['file_name']).copy()
-        # for b in remain_regress_boxes:
-        #     cv2.rectangle(img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0,0,255), 2)
+        # for i, b in enumerate(remain_regress_boxes):
+        #     if i < N:
+        #         cv2.rectangle(img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0,0,255), 2)
+        #     else:
+        #         cv2.rectangle(img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (255,0,0), 2)
         # cv2.imwrite("./sss.jpg", img)
         # import pdb;pdb.set_trace()
         
@@ -732,7 +721,7 @@ class MDR(nn.Module):
         
         # 检测格式的预处理 
         curr_res_inp_boxes = det_instances.inp_boxes.cpu().numpy()
-        curr_res_pred_feats = det_instances.pred_feats.cpu().numpy()
+        curr_res_pred_feats = det_instances.pred_embedding.cpu().numpy()
         curr_res_post_output = det_boxes
         curr_res_scores = det_instances.scores.cpu().numpy()
         curr_dets = []
@@ -747,19 +736,23 @@ class MDR(nn.Module):
         
         
         ret = []
+        # 初始化新轨迹：从未跟踪的新的检测中初始化新轨迹 且 对置信度分数有阈值要求。--- 更新轨迹id
         for m in matched_indices:
-            track = curr_dets[m[1]]
-            track['track_id'] = self.tracks[:-1][track_idxes[m[0]]]["track_id"]
+            track = self.tracks[:-1][track_idxes[m[0]]]
+            i = m[0]
+            det = curr_dets[m[1]]
             track['age'] = 1
             track['active'] = 1
-
-            pre_track_deque = self.tracks[:-1][track_idxes[m[0]]]["detla_deque"]
-            pre_bbox = self.tracks[:-1][track_idxes[m[0]]]['bbox']
-            detla_xy = track['bbox'] - pre_bbox
-            pre_track_deque.append(detla_xy)
-            track['detla_deque'] = pre_track_deque
+            pre_bbox = track['bbox'] 
+            detla_xy = det['bbox'] - pre_bbox
+            track['detla_deque'].append(detla_xy)
+            track['bbox']  = det['bbox']
+            # track['bbox']  = remain_regress_boxes[i]
+            track['bbox_inp'] = track['bbox'] * scale 
+            track['score'] = det['score']
+            track['pred_feats'] = track_emb[i]
             ret.append(track)
-        
+
         # import pdb;pdb.set_trace()
         for i in unmatched_dets:
             track = curr_dets[i]
@@ -776,29 +769,16 @@ class MDR(nn.Module):
         for i in unmatched_tracks:# 对于丢失的轨迹 其 embedding不会发生更新 因此 它的embedding最多仅仅只能管10帧长度 这是由训练的方式决定的 ，只有被关联到 embedding的信息才会更新
             track = self.tracks[:-1][track_idxes[i]]
             if track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST * 3:
-                if track['active'] > 0 or track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST:
+                # if track['active'] > 0 or track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST:
                     track['age'] += 1
                     track['active'] = 0
                     pre_box = track['bbox']
+                    new_detla = remain_regress_boxes[i] - pre_box
                     track['bbox'] = remain_regress_boxes[i]
                     track['bbox_inp'] = track_coords_cpu[i]
-                    new_detla = track['bbox'] - pre_box
+                    track['pred_feats'] = track_emb[i]
                     track['detla_deque'].append(new_detla)
                     ret.append(track)
-                else:
-                    track['age'] += 1
-                    track['active'] = 0
-                    pre_box = track['bbox']
-                    new_detla = self.tracklets_smooth(track['detla_deque'])
-                    track['bbox'] = track['bbox'] + new_detla
-                    track['bbox_inp'] = track['bbox'] * scale
-                    # track['bbox'] = remain_regress_boxes[i]
-                    # track['bbox_inp'] = track_coords_cpu[i]
-                    # new_detla = track['bbox'] - pre_box
-                    track['detla_deque'].append(new_detla)
-                    ret.append(track)
-                    
-        
             # import pdb;pdb.set_trace()
             # img = cv2.imread(inp_per_img['file_name']).copy()
             # for track in lost_stracks:
@@ -823,7 +803,7 @@ class MDR(nn.Module):
                 matched_indices.append([i, j])
         return np.array(matched_indices, np.int32).reshape(-1, 2)
     
-    def postprocess(self, pred_boxes, pred_cls, pred_scores, num_classes, conf_thre=0.01, nms_thre=0.8):
+    def postprocess(self, pred_boxes, pred_cls, pred_scores, num_classes, conf_thre=0.01, nms_thre=0.65):
         predictions = torch.cat([pred_boxes, pred_scores.unsqueeze(-1), pred_cls.unsqueeze(-1)], 1)
         predictions = predictions.unsqueeze(0)
         output = [None for _ in range(len(predictions))]
@@ -852,6 +832,74 @@ class MDR(nn.Module):
                 output[i] = torch.cat((output[i], detections))
 
         return output[0], nms_out_index, conf_mask
+    
+    def detector_postprocess(
+        self, results: Instances, output_height: int, output_width: int, mask_threshold: float = 0.5, is_clip: bool = True
+    ):
+        """
+        Resize the output instances.
+        The input images are often resized when entering an object detector.
+        As a result, we often need the outputs of the detector in a different
+        resolution from its inputs.
+
+        This function will resize the raw outputs of an R-CNN detector
+        to produce outputs according to the desired output resolution.
+
+        Args:
+            results (Instances): the raw outputs from the detector.
+                `results.image_size` contains the input image resolution the detector sees.
+                This object might be modified in-place.
+            output_height, output_width: the desired output resolution.
+        Returns:
+            Instances: the resized output from the model, based on the output resolution
+        """
+        if isinstance(output_width, torch.Tensor):
+            # This shape might (but not necessarily) be tensors during tracing.
+            # Converts integer tensors to float temporaries to ensure true
+            # division is performed when computing scale_x and scale_y.
+            output_width_tmp = output_width.float()
+            output_height_tmp = output_height.float()
+            new_size = torch.stack([output_height, output_width])
+        else:
+            new_size = (output_height, output_width)
+            output_width_tmp = output_width
+            output_height_tmp = output_height
+
+        scale_x, scale_y = (
+            output_width_tmp / results.image_size[1],
+            output_height_tmp / results.image_size[0],
+        )
+        results = Instances(new_size, **results.get_fields())
+
+        if results.has("pred_boxes"):
+            output_boxes = results.pred_boxes
+        elif results.has("proposal_boxes"):
+            output_boxes = results.proposal_boxes
+        else:
+            output_boxes = None
+        assert output_boxes is not None, "Predictions must contain boxes!"
+
+        output_boxes.scale(scale_x, scale_y)
+        if is_clip:
+            output_boxes.clip(results.image_size)
+
+        results = results[output_boxes.nonempty()]
+
+        if results.has("pred_masks"):
+            if isinstance(results.pred_masks, ROIMasks):
+                roi_masks = results.pred_masks
+            else:
+                # pred_masks is a tensor of shape (N, 1, M, M)
+                roi_masks = ROIMasks(results.pred_masks[:, 0, :, :])
+            results.pred_masks = roi_masks.to_bitmasks(
+                results.pred_boxes, output_height, output_width, mask_threshold
+            ).tensor  # TODO return ROIMasks/BitMask object in the future
+
+        if results.has("pred_keypoints"):
+            results.pred_keypoints[:, :, 0] *= scale_x
+            results.pred_keypoints[:, :, 1] *= scale_y
+
+        return results, output_boxes.nonempty()
     
     def iou_distance(self, atracks, btracks):
         """
@@ -916,3 +964,7 @@ class MDR(nn.Module):
         unmatched_b = np.where(y < 0)[0]
         matches = np.asarray(matches)
         return matches, unmatched_a, unmatched_b
+    
+
+# 初始化新轨迹：从未跟踪的新的检测中初始化新轨迹 且 对置信度分数有阈值要求。--- 更新轨迹id
+# 更新丢失的轨迹信息： 如果轨迹id存在且分数小于置信度阈值的 便会丢失 更新+1丢失时长。并且当丢失时长超过5帧时将轨迹删除 

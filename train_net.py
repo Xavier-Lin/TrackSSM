@@ -134,8 +134,9 @@ class Trainer(DefaultTrainer):
             memo.add(value)
             lr = cfg.SOLVER.BASE_LR
             weight_decay = cfg.SOLVER.WEIGHT_DECAY
-            if "backbone" in key:
+            if "backbone" in key or 'head' in key or 'init_proposal_features' in key or 'init_proposal_boxes' in key :
                 lr = lr * cfg.SOLVER.BACKBONE_MULTIPLIER
+
             params += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]
 
         def maybe_add_full_model_gradient_clipping(optim):  # optim: the optimizer class
@@ -305,4 +306,5 @@ if __name__ == "__main__":
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train_net.py  --num-gpus 4  --config-file configs/MDR-r50-500pro-36e-track.yaml
     
     CUDA_VISIBLE_DEVICES=0  python train_net.py  --num-gpus 1  --eval-only  --config-file configs/MDR-r50-500pro-36e-track-infer.yaml
+    
     '''

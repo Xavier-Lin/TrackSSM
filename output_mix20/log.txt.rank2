@@ -1,0 +1,2664 @@
+[09/27 13:18:09] detectron2 INFO: Rank of current process: 2. World size: 4
+[09/27 13:18:11] detectron2 INFO: Environment info:
+-------------------------------  ----------------------------------------------------------------------------------
+sys.platform                     linux
+Python                           3.9.16 (main, Mar  8 2023, 14:00:05) [GCC 11.2.0]
+numpy                            1.23.5
+detectron2                       0.6 @/data/zelinliu/detectron2/detectron2
+Compiler                         GCC 9.4
+CUDA compiler                    CUDA 11.4
+detectron2 arch flags            8.6
+DETECTRON2_ENV_MODULE            <not set>
+PyTorch                          1.9.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch
+PyTorch debug build              False
+torch._C._GLIBCXX_USE_CXX11_ABI  False
+GPU available                    Yes
+GPU 0,1,2,3                      NVIDIA GeForce RTX 3090 (arch=8.6)
+Driver version                   470.199.02
+CUDA_HOME                        /usr/local/cuda-11.4
+Pillow                           9.5.0
+torchvision                      0.10.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torchvision
+torchvision arch flags           3.5, 5.0, 6.0, 7.0, 7.5, 8.0, 8.6
+fvcore                           0.1.5.post20221221
+iopath                           0.1.9
+cv2                              4.7.0
+-------------------------------  ----------------------------------------------------------------------------------
+PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191122 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v2.1.2 (Git Hash 98be7e8afa711dc9b66c8ff3504129cb82013cdb)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.1, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+[09/27 13:18:11] detectron2 INFO: Command line arguments: Namespace(config_file='configs/MDR-r50-500pro-50e.yaml', resume=False, eval_only=False, num_gpus=4, num_machines=1, machine_rank=0, dist_url='tcp://127.0.0.1:50153', opts=[])
+[09/27 13:18:11] detectron2 INFO: Contents of args.config_file=configs/MDR-r50-500pro-50e.yaml:
+[38;5;197m_BASE_[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mBase-MDR.yaml[39m[38;5;186m"[39m
+[38;5;197mMODEL[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mWEIGHTS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186m/data/zelinliu/SparseRCNN/resnet50-0676ba61.pth[39m[38;5;186m"[39m
+[38;5;15m  [39m[38;5;197mRESNETS[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mDEPTH[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m50[39m
+[38;5;15m    [39m[38;5;197mSTRIDE_IN_1X1[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mMDR[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mNUM_PROPOSALS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m500[39m
+[38;5;15m    [39m[38;5;197mNUM_CLASSES[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1[39m
+[38;5;197mDATASETS[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mTEST[39m[38;5;15m:[39m[38;5;15m  [39m[38;5;141m("my_val",)[39m
+[38;5;197mSOLVER[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mSTEPS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(49532,[39m[38;5;141m [39m[38;5;141m58966)[39m[38;5;15m [39m[38;5;242m# 1769[39m
+[38;5;15m  [39m[38;5;197mMAX_ITER[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m63684[39m[38;5;15m [39m[38;5;242m#1769*36[39m
+[38;5;15m  [39m[38;5;197mCHECKPOINT_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;15m  [39m[38;5;197mAMP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m[38;5;15m [39m[38;5;242m# 暂时不支持混合精度训练 以及 半精度推理[39m
+[38;5;197mTEST[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mEVAL_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;197mINPUT[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(640,[39m[38;5;141m [39m[38;5;141m672,[39m[38;5;141m [39m[38;5;141m704,[39m[38;5;141m [39m[38;5;141m736,[39m[38;5;141m [39m[38;5;141m768,[39m[38;5;141m [39m[38;5;141m800,[39m[38;5;141m [39m[38;5;141m832,[39m[38;5;141m [39m[38;5;141m864)[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1620[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TEST[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m800[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1500[39m
+[38;5;15m  [39m[38;5;197mCROP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mFORMAT[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mRGB[39m[38;5;186m"[39m
+[38;5;197mOUTPUT_DIR[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186moutput_mix20[39m[38;5;186m"[39m
+
+[09/27 13:18:12] detectron2.engine.defaults INFO: Model:
+MDR(
+  (backbone): FPN(
+    (fpn_lateral2): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral4): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output4): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral5): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output5): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (top_block): LastLevelMaxPool()
+    (bottom_up): ResNet(
+      (stem): BasicStem(
+        (conv1): Conv2d(
+          3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+          (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+        )
+      )
+      (res2): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+      )
+      (res3): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+      )
+      (res4): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (4): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (5): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+      )
+      (res5): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+      )
+    )
+  )
+  (init_proposal_features): Embedding(500, 256)
+  (init_proposal_boxes): Embedding(500, 4)
+  (head): DynamicHead(
+    (box_pooler): ROIPooler(
+      (level_poolers): ModuleList(
+        (0): ROIAlign(output_size=(7, 7), spatial_scale=0.25, sampling_ratio=2, aligned=True)
+        (1): ROIAlign(output_size=(7, 7), spatial_scale=0.125, sampling_ratio=2, aligned=True)
+        (2): ROIAlign(output_size=(7, 7), spatial_scale=0.0625, sampling_ratio=2, aligned=True)
+        (3): ROIAlign(output_size=(7, 7), spatial_scale=0.03125, sampling_ratio=2, aligned=True)
+      )
+    )
+    (head_series): ModuleList(
+      (0): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (1): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (2): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (3): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (4): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (5): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+    )
+  )
+  (criterion): SetCriterion(
+    (matcher): HungarianMatcher()
+  )
+)
+[09/27 13:18:12] detectron2 INFO: ==> initializing train data from /data/zelinliu/SparseRCNN/mix/mix_20/annotations/train.json, 
+ images from /data/zelinliu ...
+[09/27 13:18:25] detectron2 WARNING: 
+        Category_ids in current annotations file are not start to 0, we will map 'category_id' in the annotation files to 0..num_categories !      
+                 
+[09/27 13:18:25] detectron2 INFO: Creating video index!
+[09/27 13:18:25] detectron2 INFO: TransformGens used in training: [RandomFlip(), ResizeShortestEdge(short_edge_length=(640, 672, 704, 736, 768, 800, 832, 864), max_size=1500, sample_style='choice'), <detectron2.data.transforms.augmentation_impl.RandomApply object at 0x7f56238fc520>]
+[09/27 13:18:25] detectron2 INFO: Loaded Custom dataset 28301 samples
+[09/27 13:18:25] detectron2.checkpoint.detection_checkpoint INFO: [DetectionCheckpointer] Loading from /data/zelinliu/SparseRCNN/resnet50-0676ba61.pth ...
+[09/27 13:18:25] fvcore.common.checkpoint INFO: [Checkpointer] Loading from /data/zelinliu/SparseRCNN/resnet50-0676ba61.pth ...
+[09/27 13:18:25] fvcore.common.checkpoint WARNING: Some model parameters or buffers are not found in the checkpoint:
+[34mbackbone.bottom_up.res2.0.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.0.conv1.weight[0m
+[34mbackbone.bottom_up.res2.0.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.0.conv2.weight[0m
+[34mbackbone.bottom_up.res2.0.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.0.conv3.weight[0m
+[34mbackbone.bottom_up.res2.0.shortcut.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.0.shortcut.weight[0m
+[34mbackbone.bottom_up.res2.1.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.1.conv1.weight[0m
+[34mbackbone.bottom_up.res2.1.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.1.conv2.weight[0m
+[34mbackbone.bottom_up.res2.1.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.1.conv3.weight[0m
+[34mbackbone.bottom_up.res2.2.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.2.conv1.weight[0m
+[34mbackbone.bottom_up.res2.2.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.2.conv2.weight[0m
+[34mbackbone.bottom_up.res2.2.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res2.2.conv3.weight[0m
+[34mbackbone.bottom_up.res3.0.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.0.conv1.weight[0m
+[34mbackbone.bottom_up.res3.0.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.0.conv2.weight[0m
+[34mbackbone.bottom_up.res3.0.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.0.conv3.weight[0m
+[34mbackbone.bottom_up.res3.0.shortcut.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.0.shortcut.weight[0m
+[34mbackbone.bottom_up.res3.1.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.1.conv1.weight[0m
+[34mbackbone.bottom_up.res3.1.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.1.conv2.weight[0m
+[34mbackbone.bottom_up.res3.1.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.1.conv3.weight[0m
+[34mbackbone.bottom_up.res3.2.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.2.conv1.weight[0m
+[34mbackbone.bottom_up.res3.2.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.2.conv2.weight[0m
+[34mbackbone.bottom_up.res3.2.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.2.conv3.weight[0m
+[34mbackbone.bottom_up.res3.3.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.3.conv1.weight[0m
+[34mbackbone.bottom_up.res3.3.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.3.conv2.weight[0m
+[34mbackbone.bottom_up.res3.3.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res3.3.conv3.weight[0m
+[34mbackbone.bottom_up.res4.0.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.0.conv1.weight[0m
+[34mbackbone.bottom_up.res4.0.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.0.conv2.weight[0m
+[34mbackbone.bottom_up.res4.0.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.0.conv3.weight[0m
+[34mbackbone.bottom_up.res4.0.shortcut.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.0.shortcut.weight[0m
+[34mbackbone.bottom_up.res4.1.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.1.conv1.weight[0m
+[34mbackbone.bottom_up.res4.1.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.1.conv2.weight[0m
+[34mbackbone.bottom_up.res4.1.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.1.conv3.weight[0m
+[34mbackbone.bottom_up.res4.2.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.2.conv1.weight[0m
+[34mbackbone.bottom_up.res4.2.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.2.conv2.weight[0m
+[34mbackbone.bottom_up.res4.2.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.2.conv3.weight[0m
+[34mbackbone.bottom_up.res4.3.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.3.conv1.weight[0m
+[34mbackbone.bottom_up.res4.3.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.3.conv2.weight[0m
+[34mbackbone.bottom_up.res4.3.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.3.conv3.weight[0m
+[34mbackbone.bottom_up.res4.4.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.4.conv1.weight[0m
+[34mbackbone.bottom_up.res4.4.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.4.conv2.weight[0m
+[34mbackbone.bottom_up.res4.4.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.4.conv3.weight[0m
+[34mbackbone.bottom_up.res4.5.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.5.conv1.weight[0m
+[34mbackbone.bottom_up.res4.5.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.5.conv2.weight[0m
+[34mbackbone.bottom_up.res4.5.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res4.5.conv3.weight[0m
+[34mbackbone.bottom_up.res5.0.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.0.conv1.weight[0m
+[34mbackbone.bottom_up.res5.0.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.0.conv2.weight[0m
+[34mbackbone.bottom_up.res5.0.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.0.conv3.weight[0m
+[34mbackbone.bottom_up.res5.0.shortcut.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.0.shortcut.weight[0m
+[34mbackbone.bottom_up.res5.1.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.1.conv1.weight[0m
+[34mbackbone.bottom_up.res5.1.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.1.conv2.weight[0m
+[34mbackbone.bottom_up.res5.1.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.1.conv3.weight[0m
+[34mbackbone.bottom_up.res5.2.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.2.conv1.weight[0m
+[34mbackbone.bottom_up.res5.2.conv2.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.2.conv2.weight[0m
+[34mbackbone.bottom_up.res5.2.conv3.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.res5.2.conv3.weight[0m
+[34mbackbone.bottom_up.stem.conv1.norm.{bias, weight}[0m
+[34mbackbone.bottom_up.stem.conv1.weight[0m
+[34mbackbone.fpn_lateral2.{bias, weight}[0m
+[34mbackbone.fpn_lateral3.{bias, weight}[0m
+[34mbackbone.fpn_lateral4.{bias, weight}[0m
+[34mbackbone.fpn_lateral5.{bias, weight}[0m
+[34mbackbone.fpn_output2.{bias, weight}[0m
+[34mbackbone.fpn_output3.{bias, weight}[0m
+[34mbackbone.fpn_output4.{bias, weight}[0m
+[34mbackbone.fpn_output5.{bias, weight}[0m
+[34mhead.head_series.0.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.0.class_logits.{bias, weight}[0m
+[34mhead.head_series.0.cls_module.0.weight[0m
+[34mhead.head_series.0.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.0.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.0.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.0.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.0.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.0.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.0.linear1.{bias, weight}[0m
+[34mhead.head_series.0.linear2.{bias, weight}[0m
+[34mhead.head_series.0.norm1.{bias, weight}[0m
+[34mhead.head_series.0.norm2.{bias, weight}[0m
+[34mhead.head_series.0.norm3.{bias, weight}[0m
+[34mhead.head_series.0.reg_module.0.weight[0m
+[34mhead.head_series.0.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.0.reg_module.3.weight[0m
+[34mhead.head_series.0.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.0.reg_module.6.weight[0m
+[34mhead.head_series.0.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.0.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.0.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34mhead.head_series.1.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.1.class_logits.{bias, weight}[0m
+[34mhead.head_series.1.cls_module.0.weight[0m
+[34mhead.head_series.1.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.1.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.1.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.1.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.1.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.1.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.1.linear1.{bias, weight}[0m
+[34mhead.head_series.1.linear2.{bias, weight}[0m
+[34mhead.head_series.1.norm1.{bias, weight}[0m
+[34mhead.head_series.1.norm2.{bias, weight}[0m
+[34mhead.head_series.1.norm3.{bias, weight}[0m
+[34mhead.head_series.1.reg_module.0.weight[0m
+[34mhead.head_series.1.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.1.reg_module.3.weight[0m
+[34mhead.head_series.1.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.1.reg_module.6.weight[0m
+[34mhead.head_series.1.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.1.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.1.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34mhead.head_series.2.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.2.class_logits.{bias, weight}[0m
+[34mhead.head_series.2.cls_module.0.weight[0m
+[34mhead.head_series.2.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.2.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.2.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.2.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.2.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.2.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.2.linear1.{bias, weight}[0m
+[34mhead.head_series.2.linear2.{bias, weight}[0m
+[34mhead.head_series.2.norm1.{bias, weight}[0m
+[34mhead.head_series.2.norm2.{bias, weight}[0m
+[34mhead.head_series.2.norm3.{bias, weight}[0m
+[34mhead.head_series.2.reg_module.0.weight[0m
+[34mhead.head_series.2.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.2.reg_module.3.weight[0m
+[34mhead.head_series.2.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.2.reg_module.6.weight[0m
+[34mhead.head_series.2.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.2.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.2.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34mhead.head_series.3.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.3.class_logits.{bias, weight}[0m
+[34mhead.head_series.3.cls_module.0.weight[0m
+[34mhead.head_series.3.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.3.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.3.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.3.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.3.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.3.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.3.linear1.{bias, weight}[0m
+[34mhead.head_series.3.linear2.{bias, weight}[0m
+[34mhead.head_series.3.norm1.{bias, weight}[0m
+[34mhead.head_series.3.norm2.{bias, weight}[0m
+[34mhead.head_series.3.norm3.{bias, weight}[0m
+[34mhead.head_series.3.reg_module.0.weight[0m
+[34mhead.head_series.3.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.3.reg_module.3.weight[0m
+[34mhead.head_series.3.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.3.reg_module.6.weight[0m
+[34mhead.head_series.3.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.3.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.3.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34mhead.head_series.4.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.4.class_logits.{bias, weight}[0m
+[34mhead.head_series.4.cls_module.0.weight[0m
+[34mhead.head_series.4.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.4.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.4.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.4.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.4.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.4.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.4.linear1.{bias, weight}[0m
+[34mhead.head_series.4.linear2.{bias, weight}[0m
+[34mhead.head_series.4.norm1.{bias, weight}[0m
+[34mhead.head_series.4.norm2.{bias, weight}[0m
+[34mhead.head_series.4.norm3.{bias, weight}[0m
+[34mhead.head_series.4.reg_module.0.weight[0m
+[34mhead.head_series.4.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.4.reg_module.3.weight[0m
+[34mhead.head_series.4.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.4.reg_module.6.weight[0m
+[34mhead.head_series.4.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.4.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.4.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34mhead.head_series.5.bboxes_delta.{bias, weight}[0m
+[34mhead.head_series.5.class_logits.{bias, weight}[0m
+[34mhead.head_series.5.cls_module.0.weight[0m
+[34mhead.head_series.5.cls_module.1.{bias, weight}[0m
+[34mhead.head_series.5.inst_interact.dynamic_layer.{bias, weight}[0m
+[34mhead.head_series.5.inst_interact.norm1.{bias, weight}[0m
+[34mhead.head_series.5.inst_interact.norm2.{bias, weight}[0m
+[34mhead.head_series.5.inst_interact.norm3.{bias, weight}[0m
+[34mhead.head_series.5.inst_interact.out_layer.{bias, weight}[0m
+[34mhead.head_series.5.linear1.{bias, weight}[0m
+[34mhead.head_series.5.linear2.{bias, weight}[0m
+[34mhead.head_series.5.norm1.{bias, weight}[0m
+[34mhead.head_series.5.norm2.{bias, weight}[0m
+[34mhead.head_series.5.norm3.{bias, weight}[0m
+[34mhead.head_series.5.reg_module.0.weight[0m
+[34mhead.head_series.5.reg_module.1.{bias, weight}[0m
+[34mhead.head_series.5.reg_module.3.weight[0m
+[34mhead.head_series.5.reg_module.4.{bias, weight}[0m
+[34mhead.head_series.5.reg_module.6.weight[0m
+[34mhead.head_series.5.reg_module.7.{bias, weight}[0m
+[34mhead.head_series.5.self_attn.out_proj.{bias, weight}[0m
+[34mhead.head_series.5.self_attn.{in_proj_bias, in_proj_weight}[0m
+[34minit_proposal_boxes.weight[0m
+[34minit_proposal_features.weight[0m
+[09/27 13:18:25] fvcore.common.checkpoint WARNING: The checkpoint state_dict contains keys that are not used by the model:
+  [35mconv1.weight[0m
+  [35mbn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.0.conv1.weight[0m
+  [35mlayer1.0.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.0.conv2.weight[0m
+  [35mlayer1.0.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.0.conv3.weight[0m
+  [35mlayer1.0.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.0.downsample.0.weight[0m
+  [35mlayer1.0.downsample.1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.1.conv1.weight[0m
+  [35mlayer1.1.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.1.conv2.weight[0m
+  [35mlayer1.1.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.1.conv3.weight[0m
+  [35mlayer1.1.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.2.conv1.weight[0m
+  [35mlayer1.2.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.2.conv2.weight[0m
+  [35mlayer1.2.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer1.2.conv3.weight[0m
+  [35mlayer1.2.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.0.conv1.weight[0m
+  [35mlayer2.0.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.0.conv2.weight[0m
+  [35mlayer2.0.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.0.conv3.weight[0m
+  [35mlayer2.0.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.0.downsample.0.weight[0m
+  [35mlayer2.0.downsample.1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.1.conv1.weight[0m
+  [35mlayer2.1.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.1.conv2.weight[0m
+  [35mlayer2.1.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.1.conv3.weight[0m
+  [35mlayer2.1.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.2.conv1.weight[0m
+  [35mlayer2.2.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.2.conv2.weight[0m
+  [35mlayer2.2.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.2.conv3.weight[0m
+  [35mlayer2.2.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.3.conv1.weight[0m
+  [35mlayer2.3.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.3.conv2.weight[0m
+  [35mlayer2.3.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer2.3.conv3.weight[0m
+  [35mlayer2.3.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.0.conv1.weight[0m
+  [35mlayer3.0.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.0.conv2.weight[0m
+  [35mlayer3.0.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.0.conv3.weight[0m
+  [35mlayer3.0.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.0.downsample.0.weight[0m
+  [35mlayer3.0.downsample.1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.1.conv1.weight[0m
+  [35mlayer3.1.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.1.conv2.weight[0m
+  [35mlayer3.1.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.1.conv3.weight[0m
+  [35mlayer3.1.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.2.conv1.weight[0m
+  [35mlayer3.2.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.2.conv2.weight[0m
+  [35mlayer3.2.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.2.conv3.weight[0m
+  [35mlayer3.2.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.3.conv1.weight[0m
+  [35mlayer3.3.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.3.conv2.weight[0m
+  [35mlayer3.3.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.3.conv3.weight[0m
+  [35mlayer3.3.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.4.conv1.weight[0m
+  [35mlayer3.4.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.4.conv2.weight[0m
+  [35mlayer3.4.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.4.conv3.weight[0m
+  [35mlayer3.4.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.5.conv1.weight[0m
+  [35mlayer3.5.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.5.conv2.weight[0m
+  [35mlayer3.5.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer3.5.conv3.weight[0m
+  [35mlayer3.5.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.0.conv1.weight[0m
+  [35mlayer4.0.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.0.conv2.weight[0m
+  [35mlayer4.0.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.0.conv3.weight[0m
+  [35mlayer4.0.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.0.downsample.0.weight[0m
+  [35mlayer4.0.downsample.1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.1.conv1.weight[0m
+  [35mlayer4.1.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.1.conv2.weight[0m
+  [35mlayer4.1.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.1.conv3.weight[0m
+  [35mlayer4.1.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.2.conv1.weight[0m
+  [35mlayer4.2.bn1.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.2.conv2.weight[0m
+  [35mlayer4.2.bn2.{bias, running_mean, running_var, weight}[0m
+  [35mlayer4.2.conv3.weight[0m
+  [35mlayer4.2.bn3.{bias, running_mean, running_var, weight}[0m
+  [35mfc.{bias, weight}[0m
+[09/27 13:18:25] detectron2.engine.train_loop INFO: Starting training from iteration 0
+[09/27 14:34:41] detectron2.data.build INFO: Distribution of instances among all 1 categories:
+[36m|  category  | #instances   |
+|:----------:|:-------------|
+| pedestrian | 1134614      |
+|            |              |[0m
+[09/27 14:34:42] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 14:34:42] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 14:34:42] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 14:34:43] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 14:34:44] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 14:34:51] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 14:34:54] detectron2.engine.train_loop ERROR: Exception during training:
+Traceback (most recent call last):
+  File "/data/zelinliu/detectron2/detectron2/engine/train_loop.py", line 156, in train
+    self.after_step()
+  File "/data/zelinliu/detectron2/detectron2/engine/train_loop.py", line 190, in after_step
+    h.after_step()
+  File "/data/zelinliu/detectron2/detectron2/engine/hooks.py", line 556, in after_step
+    self._do_eval()
+  File "/data/zelinliu/detectron2/detectron2/engine/hooks.py", line 529, in _do_eval
+    results = self._func()
+  File "/data/zelinliu/detectron2/detectron2/engine/defaults.py", line 453, in test_and_save_results
+    self._last_eval_results = self.test(self.cfg, self.model)
+  File "/data/zelinliu/detectron2/detectron2/engine/defaults.py", line 617, in test
+    results_i = inference_on_dataset(model, data_loader, evaluator)
+  File "/data/zelinliu/detectron2/detectron2/evaluation/evaluator.py", line 158, in inference_on_dataset
+    outputs = model(inputs)
+  File "/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch/nn/parallel/distributed.py", line 799, in forward
+    output = self.module(*inputs[0], **kwargs[0])
+  File "/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1051, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/data/zelinliu/SparseRCNN/sparsercnn/detector.py", line 138, in forward
+    images, images_whwh = self.preprocess_image(batched_inputs)
+  File "/data/zelinliu/SparseRCNN/sparsercnn/detector.py", line 342, in preprocess_image
+    assert bi["image"].shape[-2:] == bi["pre_img"].shape[-2:]
+KeyError: 'pre_img'
+[09/27 14:34:54] detectron2.engine.hooks INFO: Overall training speed: 4997 iterations in 1:15:06 (0.9017 s / it)
+[09/27 14:34:54] detectron2.engine.hooks INFO: Total training time: 1:15:35 (0:00:29 on hooks)
+[09/27 14:55:08] detectron2 INFO: Rank of current process: 2. World size: 4
+[09/27 14:55:10] detectron2 INFO: Environment info:
+-------------------------------  ----------------------------------------------------------------------------------
+sys.platform                     linux
+Python                           3.9.16 (main, Mar  8 2023, 14:00:05) [GCC 11.2.0]
+numpy                            1.23.5
+detectron2                       0.6 @/data/zelinliu/detectron2/detectron2
+Compiler                         GCC 9.4
+CUDA compiler                    CUDA 11.4
+detectron2 arch flags            8.6
+DETECTRON2_ENV_MODULE            <not set>
+PyTorch                          1.9.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch
+PyTorch debug build              False
+torch._C._GLIBCXX_USE_CXX11_ABI  False
+GPU available                    Yes
+GPU 0,1,2,3                      NVIDIA GeForce RTX 3090 (arch=8.6)
+Driver version                   470.199.02
+CUDA_HOME                        /usr/local/cuda-11.4
+Pillow                           9.5.0
+torchvision                      0.10.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torchvision
+torchvision arch flags           3.5, 5.0, 6.0, 7.0, 7.5, 8.0, 8.6
+fvcore                           0.1.5.post20221221
+iopath                           0.1.9
+cv2                              4.7.0
+-------------------------------  ----------------------------------------------------------------------------------
+PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191122 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v2.1.2 (Git Hash 98be7e8afa711dc9b66c8ff3504129cb82013cdb)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.1, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+[09/27 14:55:10] detectron2 INFO: Command line arguments: Namespace(config_file='configs/MDR-r50-500pro-50e.yaml', resume=True, eval_only=False, num_gpus=4, num_machines=1, machine_rank=0, dist_url='tcp://127.0.0.1:50153', opts=['MODEL.WEIGHTS', '/data/zelinliu/SparseRCNN/output_mix20/model_0004999.pth'])
+[09/27 14:55:10] detectron2 INFO: Contents of args.config_file=configs/MDR-r50-500pro-50e.yaml:
+[38;5;197m_BASE_[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mBase-MDR.yaml[39m[38;5;186m"[39m
+[38;5;197mMODEL[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mWEIGHTS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186m/data/zelinliu/SparseRCNN/resnet50-0676ba61.pth[39m[38;5;186m"[39m
+[38;5;15m  [39m[38;5;197mRESNETS[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mDEPTH[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m50[39m
+[38;5;15m    [39m[38;5;197mSTRIDE_IN_1X1[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mMDR[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mNUM_PROPOSALS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m500[39m
+[38;5;15m    [39m[38;5;197mNUM_CLASSES[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1[39m
+[38;5;197mDATASETS[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mTEST[39m[38;5;15m:[39m[38;5;15m  [39m[38;5;141m("my_val",)[39m
+[38;5;197mSOLVER[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mSTEPS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(49532,[39m[38;5;141m [39m[38;5;141m58966)[39m[38;5;15m [39m[38;5;242m# 1769[39m
+[38;5;15m  [39m[38;5;197mMAX_ITER[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m63684[39m[38;5;15m [39m[38;5;242m#1769*36[39m
+[38;5;15m  [39m[38;5;197mCHECKPOINT_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;15m  [39m[38;5;197mAMP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m[38;5;15m [39m[38;5;242m# 暂时不支持混合精度训练 以及 半精度推理[39m
+[38;5;197mTEST[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mEVAL_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;197mINPUT[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(640,[39m[38;5;141m [39m[38;5;141m672,[39m[38;5;141m [39m[38;5;141m704,[39m[38;5;141m [39m[38;5;141m736,[39m[38;5;141m [39m[38;5;141m768,[39m[38;5;141m [39m[38;5;141m800,[39m[38;5;141m [39m[38;5;141m832,[39m[38;5;141m [39m[38;5;141m864)[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1620[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TEST[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m800[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1500[39m
+[38;5;15m  [39m[38;5;197mCROP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mFORMAT[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mRGB[39m[38;5;186m"[39m
+[38;5;197mOUTPUT_DIR[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186moutput_mix20[39m[38;5;186m"[39m
+
+[09/27 14:55:11] detectron2.engine.defaults INFO: Model:
+MDR(
+  (backbone): FPN(
+    (fpn_lateral2): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral4): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output4): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral5): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output5): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (top_block): LastLevelMaxPool()
+    (bottom_up): ResNet(
+      (stem): BasicStem(
+        (conv1): Conv2d(
+          3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+          (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+        )
+      )
+      (res2): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+      )
+      (res3): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+      )
+      (res4): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (4): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (5): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+      )
+      (res5): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+      )
+    )
+  )
+  (init_proposal_features): Embedding(500, 256)
+  (init_proposal_boxes): Embedding(500, 4)
+  (head): DynamicHead(
+    (box_pooler): ROIPooler(
+      (level_poolers): ModuleList(
+        (0): ROIAlign(output_size=(7, 7), spatial_scale=0.25, sampling_ratio=2, aligned=True)
+        (1): ROIAlign(output_size=(7, 7), spatial_scale=0.125, sampling_ratio=2, aligned=True)
+        (2): ROIAlign(output_size=(7, 7), spatial_scale=0.0625, sampling_ratio=2, aligned=True)
+        (3): ROIAlign(output_size=(7, 7), spatial_scale=0.03125, sampling_ratio=2, aligned=True)
+      )
+    )
+    (head_series): ModuleList(
+      (0): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (1): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (2): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (3): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (4): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (5): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+    )
+  )
+  (criterion): SetCriterion(
+    (matcher): HungarianMatcher()
+  )
+)
+[09/27 14:55:11] detectron2 INFO: ==> initializing train data from /data/zelinliu/SparseRCNN/mix/mix_20/annotations/train.json, 
+ images from /data/zelinliu ...
+[09/27 14:55:22] detectron2 WARNING: 
+        Category_ids in current annotations file are not start to 0, we will map 'category_id' in the annotation files to 0..num_categories !      
+                 
+[09/27 14:55:22] detectron2 INFO: Creating video index!
+[09/27 14:55:22] detectron2 INFO: TransformGens used in training: [RandomFlip(), ResizeShortestEdge(short_edge_length=(640, 672, 704, 736, 768, 800, 832, 864), max_size=1500, sample_style='choice'), <detectron2.data.transforms.augmentation_impl.RandomApply object at 0x7f02e805f370>]
+[09/27 14:55:22] detectron2 INFO: Loaded Custom dataset 28301 samples
+[09/27 14:55:22] detectron2.checkpoint.detection_checkpoint INFO: [DetectionCheckpointer] Loading from output_mix20/model_0004999.pth ...
+[09/27 14:55:22] fvcore.common.checkpoint INFO: [Checkpointer] Loading from output_mix20/model_0004999.pth ...
+[09/27 14:55:25] fvcore.common.checkpoint INFO: Loading trainer from output_mix20/model_0004999.pth ...
+[09/27 14:55:25] detectron2.engine.hooks INFO: Loading scheduler from state_dict ...
+[09/27 14:55:25] detectron2.engine.train_loop INFO: Starting training from iteration 5000
+[09/27 16:10:42] detectron2.data.build INFO: Distribution of instances among all 1 categories:
+[36m|  category  | #instances   |
+|:----------:|:-------------|
+| pedestrian | 1134614      |
+|            |              |[0m
+[09/27 16:10:42] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 16:10:42] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 16:10:42] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 16:10:43] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 16:10:44] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 16:10:51] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 16:10:55] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0008 s/iter. Inference: 0.0717 s/iter. Eval: 0.0711 s/iter. Total: 0.1436 s/iter. ETA=0:05:19
+[09/27 16:11:00] detectron2.evaluation.evaluator INFO: Inference done 103/2233. Dataloading: 0.0013 s/iter. Inference: 0.0537 s/iter. Eval: 0.0052 s/iter. Total: 0.0603 s/iter. ETA=0:02:08
+[09/27 16:11:05] detectron2.evaluation.evaluator INFO: Inference done 194/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0031 s/iter. Total: 0.0577 s/iter. ETA=0:01:57
+[09/27 16:11:10] detectron2.evaluation.evaluator INFO: Inference done 287/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0023 s/iter. Total: 0.0564 s/iter. ETA=0:01:49
+[09/27 16:11:15] detectron2.evaluation.evaluator INFO: Inference done 337/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0094 s/iter. Total: 0.0636 s/iter. ETA=0:02:00
+[09/27 16:11:20] detectron2.evaluation.evaluator INFO: Inference done 428/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0076 s/iter. Total: 0.0619 s/iter. ETA=0:01:51
+[09/27 16:11:25] detectron2.evaluation.evaluator INFO: Inference done 518/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0064 s/iter. Total: 0.0608 s/iter. ETA=0:01:44
+[09/27 16:11:30] detectron2.evaluation.evaluator INFO: Inference done 608/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0056 s/iter. Total: 0.0601 s/iter. ETA=0:01:37
+[09/27 16:11:35] detectron2.evaluation.evaluator INFO: Inference done 699/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0050 s/iter. Total: 0.0595 s/iter. ETA=0:01:31
+[09/27 16:11:40] detectron2.evaluation.evaluator INFO: Inference done 790/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0045 s/iter. Total: 0.0590 s/iter. ETA=0:01:25
+[09/27 16:11:45] detectron2.evaluation.evaluator INFO: Inference done 881/2233. Dataloading: 0.0015 s/iter. Inference: 0.0529 s/iter. Eval: 0.0041 s/iter. Total: 0.0586 s/iter. ETA=0:01:19
+[09/27 16:11:50] detectron2.evaluation.evaluator INFO: Inference done 973/2233. Dataloading: 0.0015 s/iter. Inference: 0.0528 s/iter. Eval: 0.0038 s/iter. Total: 0.0582 s/iter. ETA=0:01:13
+[09/27 16:11:55] detectron2.evaluation.evaluator INFO: Inference done 1065/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0036 s/iter. Total: 0.0579 s/iter. ETA=0:01:07
+[09/27 16:12:00] detectron2.evaluation.evaluator INFO: Inference done 1156/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0033 s/iter. Total: 0.0577 s/iter. ETA=0:01:02
+[09/27 16:12:06] detectron2.evaluation.evaluator INFO: Inference done 1245/2233. Dataloading: 0.0015 s/iter. Inference: 0.0529 s/iter. Eval: 0.0032 s/iter. Total: 0.0576 s/iter. ETA=0:00:56
+[09/27 16:12:11] detectron2.evaluation.evaluator INFO: Inference done 1335/2233. Dataloading: 0.0015 s/iter. Inference: 0.0530 s/iter. Eval: 0.0030 s/iter. Total: 0.0575 s/iter. ETA=0:00:51
+[09/27 16:12:16] detectron2.evaluation.evaluator INFO: Inference done 1423/2233. Dataloading: 0.0015 s/iter. Inference: 0.0531 s/iter. Eval: 0.0029 s/iter. Total: 0.0574 s/iter. ETA=0:00:46
+[09/27 16:12:21] detectron2.evaluation.evaluator INFO: Inference done 1511/2233. Dataloading: 0.0015 s/iter. Inference: 0.0532 s/iter. Eval: 0.0028 s/iter. Total: 0.0574 s/iter. ETA=0:00:41
+[09/27 16:12:26] detectron2.evaluation.evaluator INFO: Inference done 1600/2233. Dataloading: 0.0015 s/iter. Inference: 0.0532 s/iter. Eval: 0.0026 s/iter. Total: 0.0574 s/iter. ETA=0:00:36
+[09/27 16:12:31] detectron2.evaluation.evaluator INFO: Inference done 1689/2233. Dataloading: 0.0015 s/iter. Inference: 0.0533 s/iter. Eval: 0.0025 s/iter. Total: 0.0573 s/iter. ETA=0:00:31
+[09/27 16:12:36] detectron2.evaluation.evaluator INFO: Inference done 1779/2233. Dataloading: 0.0015 s/iter. Inference: 0.0533 s/iter. Eval: 0.0025 s/iter. Total: 0.0573 s/iter. ETA=0:00:25
+[09/27 16:12:41] detectron2.evaluation.evaluator INFO: Inference done 1867/2233. Dataloading: 0.0015 s/iter. Inference: 0.0533 s/iter. Eval: 0.0024 s/iter. Total: 0.0573 s/iter. ETA=0:00:20
+[09/27 16:12:46] detectron2.evaluation.evaluator INFO: Inference done 1957/2233. Dataloading: 0.0015 s/iter. Inference: 0.0534 s/iter. Eval: 0.0023 s/iter. Total: 0.0572 s/iter. ETA=0:00:15
+[09/27 16:12:52] detectron2.evaluation.evaluator INFO: Inference done 2018/2233. Dataloading: 0.0015 s/iter. Inference: 0.0534 s/iter. Eval: 0.0035 s/iter. Total: 0.0585 s/iter. ETA=0:00:12
+[09/27 16:12:57] detectron2.evaluation.evaluator INFO: Inference done 2110/2233. Dataloading: 0.0015 s/iter. Inference: 0.0534 s/iter. Eval: 0.0034 s/iter. Total: 0.0583 s/iter. ETA=0:00:07
+[09/27 16:13:02] detectron2.evaluation.evaluator INFO: Inference done 2198/2233. Dataloading: 0.0015 s/iter. Inference: 0.0534 s/iter. Eval: 0.0033 s/iter. Total: 0.0583 s/iter. ETA=0:00:02
+[09/27 16:13:04] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:10.126243 (0.058405 s / iter per device, on 4 devices)
+[09/27 16:13:04] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:58 (0.053409 s / iter per device, on 4 devices)
+[09/27 17:30:00] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 17:30:00] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 17:30:00] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 17:30:01] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 17:30:02] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 17:30:08] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 17:30:12] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0008 s/iter. Inference: 0.0551 s/iter. Eval: 0.0007 s/iter. Total: 0.0566 s/iter. ETA=0:02:05
+[09/27 17:30:17] detectron2.evaluation.evaluator INFO: Inference done 101/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0008 s/iter. Total: 0.0557 s/iter. ETA=0:01:58
+[09/27 17:30:22] detectron2.evaluation.evaluator INFO: Inference done 191/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0008 s/iter. Total: 0.0559 s/iter. ETA=0:01:54
+[09/27 17:30:27] detectron2.evaluation.evaluator INFO: Inference done 281/2233. Dataloading: 0.0015 s/iter. Inference: 0.0535 s/iter. Eval: 0.0009 s/iter. Total: 0.0559 s/iter. ETA=0:01:49
+[09/27 17:30:32] detectron2.evaluation.evaluator INFO: Inference done 372/2233. Dataloading: 0.0015 s/iter. Inference: 0.0533 s/iter. Eval: 0.0009 s/iter. Total: 0.0557 s/iter. ETA=0:01:43
+[09/27 17:30:37] detectron2.evaluation.evaluator INFO: Inference done 464/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0008 s/iter. Total: 0.0555 s/iter. ETA=0:01:38
+[09/27 17:30:42] detectron2.evaluation.evaluator INFO: Inference done 555/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0008 s/iter. Total: 0.0554 s/iter. ETA=0:01:33
+[09/27 17:30:47] detectron2.evaluation.evaluator INFO: Inference done 646/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0008 s/iter. Total: 0.0554 s/iter. ETA=0:01:27
+[09/27 17:30:52] detectron2.evaluation.evaluator INFO: Inference done 737/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0008 s/iter. Total: 0.0554 s/iter. ETA=0:01:22
+[09/27 17:30:57] detectron2.evaluation.evaluator INFO: Inference done 828/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0008 s/iter. Total: 0.0554 s/iter. ETA=0:01:17
+[09/27 17:31:02] detectron2.evaluation.evaluator INFO: Inference done 920/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0008 s/iter. Total: 0.0553 s/iter. ETA=0:01:12
+[09/27 17:31:07] detectron2.evaluation.evaluator INFO: Inference done 1012/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0008 s/iter. Total: 0.0553 s/iter. ETA=0:01:07
+[09/27 17:31:14] detectron2.evaluation.evaluator INFO: Inference done 1092/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0032 s/iter. Total: 0.0576 s/iter. ETA=0:01:05
+[09/27 17:31:19] detectron2.evaluation.evaluator INFO: Inference done 1184/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0030 s/iter. Total: 0.0573 s/iter. ETA=0:01:00
+[09/27 17:31:24] detectron2.evaluation.evaluator INFO: Inference done 1274/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0029 s/iter. Total: 0.0572 s/iter. ETA=0:00:54
+[09/27 17:31:29] detectron2.evaluation.evaluator INFO: Inference done 1362/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0028 s/iter. Total: 0.0572 s/iter. ETA=0:00:49
+[09/27 17:31:34] detectron2.evaluation.evaluator INFO: Inference done 1451/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0026 s/iter. Total: 0.0572 s/iter. ETA=0:00:44
+[09/27 17:31:39] detectron2.evaluation.evaluator INFO: Inference done 1541/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0025 s/iter. Total: 0.0571 s/iter. ETA=0:00:39
+[09/27 17:31:44] detectron2.evaluation.evaluator INFO: Inference done 1628/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0024 s/iter. Total: 0.0571 s/iter. ETA=0:00:34
+[09/27 17:31:49] detectron2.evaluation.evaluator INFO: Inference done 1715/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0024 s/iter. Total: 0.0571 s/iter. ETA=0:00:29
+[09/27 17:31:54] detectron2.evaluation.evaluator INFO: Inference done 1803/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0023 s/iter. Total: 0.0571 s/iter. ETA=0:00:24
+[09/27 17:31:59] detectron2.evaluation.evaluator INFO: Inference done 1891/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0022 s/iter. Total: 0.0571 s/iter. ETA=0:00:19
+[09/27 17:32:04] detectron2.evaluation.evaluator INFO: Inference done 1981/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0022 s/iter. Total: 0.0571 s/iter. ETA=0:00:14
+[09/27 17:32:09] detectron2.evaluation.evaluator INFO: Inference done 2069/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0021 s/iter. Total: 0.0571 s/iter. ETA=0:00:09
+[09/27 17:32:14] detectron2.evaluation.evaluator INFO: Inference done 2158/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0021 s/iter. Total: 0.0570 s/iter. ETA=0:00:04
+[09/27 17:32:19] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:07.364891 (0.057166 s / iter per device, on 4 devices)
+[09/27 17:32:19] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:59 (0.053494 s / iter per device, on 4 devices)
+[09/27 18:49:02] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 18:49:02] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 18:49:02] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 18:49:03] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 18:49:04] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 18:49:11] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 18:49:14] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0007 s/iter. Inference: 0.0531 s/iter. Eval: 0.0099 s/iter. Total: 0.0637 s/iter. ETA=0:02:21
+[09/27 18:49:19] detectron2.evaluation.evaluator INFO: Inference done 102/2233. Dataloading: 0.0013 s/iter. Inference: 0.0532 s/iter. Eval: 0.0014 s/iter. Total: 0.0560 s/iter. ETA=0:01:59
+[09/27 18:49:24] detectron2.evaluation.evaluator INFO: Inference done 155/2233. Dataloading: 0.0013 s/iter. Inference: 0.0525 s/iter. Eval: 0.0157 s/iter. Total: 0.0696 s/iter. ETA=0:02:24
+[09/27 18:49:29] detectron2.evaluation.evaluator INFO: Inference done 245/2233. Dataloading: 0.0013 s/iter. Inference: 0.0530 s/iter. Eval: 0.0101 s/iter. Total: 0.0645 s/iter. ETA=0:02:08
+[09/27 18:49:34] detectron2.evaluation.evaluator INFO: Inference done 337/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0076 s/iter. Total: 0.0618 s/iter. ETA=0:01:57
+[09/27 18:49:39] detectron2.evaluation.evaluator INFO: Inference done 427/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0061 s/iter. Total: 0.0605 s/iter. ETA=0:01:49
+[09/27 18:49:44] detectron2.evaluation.evaluator INFO: Inference done 519/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0052 s/iter. Total: 0.0594 s/iter. ETA=0:01:41
+[09/27 18:49:49] detectron2.evaluation.evaluator INFO: Inference done 610/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0045 s/iter. Total: 0.0588 s/iter. ETA=0:01:35
+[09/27 18:49:54] detectron2.evaluation.evaluator INFO: Inference done 701/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0040 s/iter. Total: 0.0584 s/iter. ETA=0:01:29
+[09/27 18:49:59] detectron2.evaluation.evaluator INFO: Inference done 793/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0037 s/iter. Total: 0.0579 s/iter. ETA=0:01:23
+[09/27 18:50:04] detectron2.evaluation.evaluator INFO: Inference done 885/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0034 s/iter. Total: 0.0576 s/iter. ETA=0:01:17
+[09/27 18:50:10] detectron2.evaluation.evaluator INFO: Inference done 975/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0031 s/iter. Total: 0.0574 s/iter. ETA=0:01:12
+[09/27 18:50:15] detectron2.evaluation.evaluator INFO: Inference done 1068/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0029 s/iter. Total: 0.0571 s/iter. ETA=0:01:06
+[09/27 18:50:20] detectron2.evaluation.evaluator INFO: Inference done 1158/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0028 s/iter. Total: 0.0570 s/iter. ETA=0:01:01
+[09/27 18:50:25] detectron2.evaluation.evaluator INFO: Inference done 1248/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0026 s/iter. Total: 0.0569 s/iter. ETA=0:00:56
+[09/27 18:50:30] detectron2.evaluation.evaluator INFO: Inference done 1335/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0025 s/iter. Total: 0.0570 s/iter. ETA=0:00:51
+[09/27 18:50:35] detectron2.evaluation.evaluator INFO: Inference done 1425/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0024 s/iter. Total: 0.0569 s/iter. ETA=0:00:46
+[09/27 18:50:40] detectron2.evaluation.evaluator INFO: Inference done 1514/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0023 s/iter. Total: 0.0569 s/iter. ETA=0:00:40
+[09/27 18:50:45] detectron2.evaluation.evaluator INFO: Inference done 1603/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0022 s/iter. Total: 0.0569 s/iter. ETA=0:00:35
+[09/27 18:50:50] detectron2.evaluation.evaluator INFO: Inference done 1689/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0022 s/iter. Total: 0.0570 s/iter. ETA=0:00:30
+[09/27 18:50:55] detectron2.evaluation.evaluator INFO: Inference done 1776/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0021 s/iter. Total: 0.0570 s/iter. ETA=0:00:26
+[09/27 18:51:00] detectron2.evaluation.evaluator INFO: Inference done 1824/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0034 s/iter. Total: 0.0583 s/iter. ETA=0:00:23
+[09/27 18:51:05] detectron2.evaluation.evaluator INFO: Inference done 1910/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0033 s/iter. Total: 0.0583 s/iter. ETA=0:00:18
+[09/27 18:51:10] detectron2.evaluation.evaluator INFO: Inference done 1999/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0032 s/iter. Total: 0.0582 s/iter. ETA=0:00:13
+[09/27 18:51:15] detectron2.evaluation.evaluator INFO: Inference done 2089/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0031 s/iter. Total: 0.0581 s/iter. ETA=0:00:08
+[09/27 18:51:20] detectron2.evaluation.evaluator INFO: Inference done 2179/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0030 s/iter. Total: 0.0580 s/iter. ETA=0:00:03
+[09/27 18:51:23] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:09.520025 (0.058133 s / iter per device, on 4 devices)
+[09/27 18:51:23] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:59 (0.053572 s / iter per device, on 4 devices)
+[09/27 20:07:27] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 20:07:27] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 20:07:27] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 20:07:28] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 20:07:29] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 20:07:34] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 20:07:38] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0008 s/iter. Inference: 0.0506 s/iter. Eval: 0.0095 s/iter. Total: 0.0609 s/iter. ETA=0:02:15
+[09/27 20:07:43] detectron2.evaluation.evaluator INFO: Inference done 103/2233. Dataloading: 0.0013 s/iter. Inference: 0.0523 s/iter. Eval: 0.0014 s/iter. Total: 0.0551 s/iter. ETA=0:01:57
+[09/27 20:07:48] detectron2.evaluation.evaluator INFO: Inference done 195/2233. Dataloading: 0.0013 s/iter. Inference: 0.0524 s/iter. Eval: 0.0011 s/iter. Total: 0.0549 s/iter. ETA=0:01:51
+[09/27 20:07:53] detectron2.evaluation.evaluator INFO: Inference done 286/2233. Dataloading: 0.0013 s/iter. Inference: 0.0526 s/iter. Eval: 0.0010 s/iter. Total: 0.0549 s/iter. ETA=0:01:46
+[09/27 20:07:58] detectron2.evaluation.evaluator INFO: Inference done 377/2233. Dataloading: 0.0013 s/iter. Inference: 0.0527 s/iter. Eval: 0.0010 s/iter. Total: 0.0551 s/iter. ETA=0:01:42
+[09/27 20:08:03] detectron2.evaluation.evaluator INFO: Inference done 469/2233. Dataloading: 0.0013 s/iter. Inference: 0.0527 s/iter. Eval: 0.0009 s/iter. Total: 0.0550 s/iter. ETA=0:01:37
+[09/27 20:08:08] detectron2.evaluation.evaluator INFO: Inference done 518/2233. Dataloading: 0.0013 s/iter. Inference: 0.0527 s/iter. Eval: 0.0055 s/iter. Total: 0.0595 s/iter. ETA=0:01:42
+[09/27 20:08:13] detectron2.evaluation.evaluator INFO: Inference done 612/2233. Dataloading: 0.0013 s/iter. Inference: 0.0525 s/iter. Eval: 0.0048 s/iter. Total: 0.0586 s/iter. ETA=0:01:34
+[09/27 20:08:18] detectron2.evaluation.evaluator INFO: Inference done 707/2233. Dataloading: 0.0013 s/iter. Inference: 0.0523 s/iter. Eval: 0.0042 s/iter. Total: 0.0579 s/iter. ETA=0:01:28
+[09/27 20:08:23] detectron2.evaluation.evaluator INFO: Inference done 800/2233. Dataloading: 0.0013 s/iter. Inference: 0.0522 s/iter. Eval: 0.0038 s/iter. Total: 0.0574 s/iter. ETA=0:01:22
+[09/27 20:08:28] detectron2.evaluation.evaluator INFO: Inference done 891/2233. Dataloading: 0.0013 s/iter. Inference: 0.0523 s/iter. Eval: 0.0035 s/iter. Total: 0.0572 s/iter. ETA=0:01:16
+[09/27 20:08:33] detectron2.evaluation.evaluator INFO: Inference done 982/2233. Dataloading: 0.0013 s/iter. Inference: 0.0524 s/iter. Eval: 0.0033 s/iter. Total: 0.0570 s/iter. ETA=0:01:11
+[09/27 20:08:38] detectron2.evaluation.evaluator INFO: Inference done 1073/2233. Dataloading: 0.0013 s/iter. Inference: 0.0524 s/iter. Eval: 0.0031 s/iter. Total: 0.0569 s/iter. ETA=0:01:05
+[09/27 20:08:43] detectron2.evaluation.evaluator INFO: Inference done 1165/2233. Dataloading: 0.0013 s/iter. Inference: 0.0524 s/iter. Eval: 0.0029 s/iter. Total: 0.0567 s/iter. ETA=0:01:00
+[09/27 20:08:48] detectron2.evaluation.evaluator INFO: Inference done 1256/2233. Dataloading: 0.0013 s/iter. Inference: 0.0525 s/iter. Eval: 0.0027 s/iter. Total: 0.0566 s/iter. ETA=0:00:55
+[09/27 20:08:53] detectron2.evaluation.evaluator INFO: Inference done 1345/2233. Dataloading: 0.0013 s/iter. Inference: 0.0526 s/iter. Eval: 0.0026 s/iter. Total: 0.0566 s/iter. ETA=0:00:50
+[09/27 20:08:58] detectron2.evaluation.evaluator INFO: Inference done 1435/2233. Dataloading: 0.0013 s/iter. Inference: 0.0526 s/iter. Eval: 0.0025 s/iter. Total: 0.0565 s/iter. ETA=0:00:45
+[09/27 20:09:03] detectron2.evaluation.evaluator INFO: Inference done 1525/2233. Dataloading: 0.0013 s/iter. Inference: 0.0527 s/iter. Eval: 0.0024 s/iter. Total: 0.0565 s/iter. ETA=0:00:39
+[09/27 20:09:08] detectron2.evaluation.evaluator INFO: Inference done 1616/2233. Dataloading: 0.0013 s/iter. Inference: 0.0527 s/iter. Eval: 0.0023 s/iter. Total: 0.0564 s/iter. ETA=0:00:34
+[09/27 20:09:13] detectron2.evaluation.evaluator INFO: Inference done 1705/2233. Dataloading: 0.0013 s/iter. Inference: 0.0528 s/iter. Eval: 0.0022 s/iter. Total: 0.0564 s/iter. ETA=0:00:29
+[09/27 20:09:18] detectron2.evaluation.evaluator INFO: Inference done 1794/2233. Dataloading: 0.0013 s/iter. Inference: 0.0529 s/iter. Eval: 0.0021 s/iter. Total: 0.0564 s/iter. ETA=0:00:24
+[09/27 20:09:23] detectron2.evaluation.evaluator INFO: Inference done 1885/2233. Dataloading: 0.0013 s/iter. Inference: 0.0529 s/iter. Eval: 0.0021 s/iter. Total: 0.0563 s/iter. ETA=0:00:19
+[09/27 20:09:28] detectron2.evaluation.evaluator INFO: Inference done 1977/2233. Dataloading: 0.0013 s/iter. Inference: 0.0528 s/iter. Eval: 0.0020 s/iter. Total: 0.0563 s/iter. ETA=0:00:14
+[09/27 20:09:33] detectron2.evaluation.evaluator INFO: Inference done 2069/2233. Dataloading: 0.0013 s/iter. Inference: 0.0528 s/iter. Eval: 0.0020 s/iter. Total: 0.0562 s/iter. ETA=0:00:09
+[09/27 20:09:38] detectron2.evaluation.evaluator INFO: Inference done 2156/2233. Dataloading: 0.0013 s/iter. Inference: 0.0529 s/iter. Eval: 0.0019 s/iter. Total: 0.0563 s/iter. ETA=0:00:04
+[09/27 20:09:43] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:05.677136 (0.056408 s / iter per device, on 4 devices)
+[09/27 20:09:43] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:57 (0.052946 s / iter per device, on 4 devices)
+[09/27 21:26:49] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 21:26:49] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 21:26:49] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 21:26:50] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 21:26:50] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 21:26:57] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 21:27:00] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0008 s/iter. Inference: 0.0729 s/iter. Eval: 0.0269 s/iter. Total: 0.1006 s/iter. ETA=0:03:43
+[09/27 21:27:06] detectron2.evaluation.evaluator INFO: Inference done 95/2233. Dataloading: 0.0014 s/iter. Inference: 0.0586 s/iter. Eval: 0.0025 s/iter. Total: 0.0627 s/iter. ETA=0:02:13
+[09/27 21:27:11] detectron2.evaluation.evaluator INFO: Inference done 186/2233. Dataloading: 0.0014 s/iter. Inference: 0.0558 s/iter. Eval: 0.0017 s/iter. Total: 0.0589 s/iter. ETA=0:02:00
+[09/27 21:27:16] detectron2.evaluation.evaluator INFO: Inference done 274/2233. Dataloading: 0.0014 s/iter. Inference: 0.0554 s/iter. Eval: 0.0014 s/iter. Total: 0.0583 s/iter. ETA=0:01:54
+[09/27 21:27:21] detectron2.evaluation.evaluator INFO: Inference done 364/2233. Dataloading: 0.0014 s/iter. Inference: 0.0549 s/iter. Eval: 0.0013 s/iter. Total: 0.0577 s/iter. ETA=0:01:47
+[09/27 21:27:26] detectron2.evaluation.evaluator INFO: Inference done 452/2233. Dataloading: 0.0014 s/iter. Inference: 0.0548 s/iter. Eval: 0.0012 s/iter. Total: 0.0575 s/iter. ETA=0:01:42
+[09/27 21:27:31] detectron2.evaluation.evaluator INFO: Inference done 542/2233. Dataloading: 0.0015 s/iter. Inference: 0.0546 s/iter. Eval: 0.0011 s/iter. Total: 0.0573 s/iter. ETA=0:01:36
+[09/27 21:27:36] detectron2.evaluation.evaluator INFO: Inference done 632/2233. Dataloading: 0.0014 s/iter. Inference: 0.0545 s/iter. Eval: 0.0011 s/iter. Total: 0.0571 s/iter. ETA=0:01:31
+[09/27 21:27:41] detectron2.evaluation.evaluator INFO: Inference done 721/2233. Dataloading: 0.0014 s/iter. Inference: 0.0544 s/iter. Eval: 0.0011 s/iter. Total: 0.0570 s/iter. ETA=0:01:26
+[09/27 21:27:46] detectron2.evaluation.evaluator INFO: Inference done 811/2233. Dataloading: 0.0014 s/iter. Inference: 0.0543 s/iter. Eval: 0.0010 s/iter. Total: 0.0569 s/iter. ETA=0:01:20
+[09/27 21:27:53] detectron2.evaluation.evaluator INFO: Inference done 887/2233. Dataloading: 0.0014 s/iter. Inference: 0.0543 s/iter. Eval: 0.0041 s/iter. Total: 0.0599 s/iter. ETA=0:01:20
+[09/27 21:27:58] detectron2.evaluation.evaluator INFO: Inference done 976/2233. Dataloading: 0.0014 s/iter. Inference: 0.0542 s/iter. Eval: 0.0038 s/iter. Total: 0.0596 s/iter. ETA=0:01:14
+[09/27 21:28:03] detectron2.evaluation.evaluator INFO: Inference done 1068/2233. Dataloading: 0.0014 s/iter. Inference: 0.0541 s/iter. Eval: 0.0036 s/iter. Total: 0.0591 s/iter. ETA=0:01:08
+[09/27 21:28:08] detectron2.evaluation.evaluator INFO: Inference done 1160/2233. Dataloading: 0.0014 s/iter. Inference: 0.0539 s/iter. Eval: 0.0034 s/iter. Total: 0.0588 s/iter. ETA=0:01:03
+[09/27 21:28:13] detectron2.evaluation.evaluator INFO: Inference done 1249/2233. Dataloading: 0.0014 s/iter. Inference: 0.0539 s/iter. Eval: 0.0032 s/iter. Total: 0.0586 s/iter. ETA=0:00:57
+[09/27 21:28:18] detectron2.evaluation.evaluator INFO: Inference done 1336/2233. Dataloading: 0.0014 s/iter. Inference: 0.0540 s/iter. Eval: 0.0030 s/iter. Total: 0.0585 s/iter. ETA=0:00:52
+[09/27 21:28:23] detectron2.evaluation.evaluator INFO: Inference done 1425/2233. Dataloading: 0.0014 s/iter. Inference: 0.0540 s/iter. Eval: 0.0029 s/iter. Total: 0.0584 s/iter. ETA=0:00:47
+[09/27 21:28:28] detectron2.evaluation.evaluator INFO: Inference done 1514/2233. Dataloading: 0.0014 s/iter. Inference: 0.0540 s/iter. Eval: 0.0028 s/iter. Total: 0.0583 s/iter. ETA=0:00:41
+[09/27 21:28:33] detectron2.evaluation.evaluator INFO: Inference done 1603/2233. Dataloading: 0.0014 s/iter. Inference: 0.0541 s/iter. Eval: 0.0026 s/iter. Total: 0.0582 s/iter. ETA=0:00:36
+[09/27 21:28:38] detectron2.evaluation.evaluator INFO: Inference done 1689/2233. Dataloading: 0.0014 s/iter. Inference: 0.0542 s/iter. Eval: 0.0026 s/iter. Total: 0.0582 s/iter. ETA=0:00:31
+[09/27 21:28:43] detectron2.evaluation.evaluator INFO: Inference done 1777/2233. Dataloading: 0.0014 s/iter. Inference: 0.0542 s/iter. Eval: 0.0025 s/iter. Total: 0.0582 s/iter. ETA=0:00:26
+[09/27 21:28:48] detectron2.evaluation.evaluator INFO: Inference done 1867/2233. Dataloading: 0.0014 s/iter. Inference: 0.0542 s/iter. Eval: 0.0024 s/iter. Total: 0.0581 s/iter. ETA=0:00:21
+[09/27 21:28:53] detectron2.evaluation.evaluator INFO: Inference done 1953/2233. Dataloading: 0.0014 s/iter. Inference: 0.0543 s/iter. Eval: 0.0023 s/iter. Total: 0.0581 s/iter. ETA=0:00:16
+[09/27 21:28:58] detectron2.evaluation.evaluator INFO: Inference done 2039/2233. Dataloading: 0.0014 s/iter. Inference: 0.0543 s/iter. Eval: 0.0023 s/iter. Total: 0.0581 s/iter. ETA=0:00:11
+[09/27 21:29:03] detectron2.evaluation.evaluator INFO: Inference done 2127/2233. Dataloading: 0.0014 s/iter. Inference: 0.0544 s/iter. Eval: 0.0022 s/iter. Total: 0.0581 s/iter. ETA=0:00:06
+[09/27 21:29:08] detectron2.evaluation.evaluator INFO: Inference done 2214/2233. Dataloading: 0.0015 s/iter. Inference: 0.0544 s/iter. Eval: 0.0021 s/iter. Total: 0.0581 s/iter. ETA=0:00:01
+[09/27 21:29:10] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:09.788592 (0.058253 s / iter per device, on 4 devices)
+[09/27 21:29:10] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:02:01 (0.054413 s / iter per device, on 4 devices)
+[09/27 22:45:41] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/27 22:45:41] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/27 22:45:41] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/27 22:45:42] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/27 22:45:42] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/27 22:45:48] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/27 22:45:51] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0007 s/iter. Inference: 0.0541 s/iter. Eval: 0.0008 s/iter. Total: 0.0557 s/iter. ETA=0:02:03
+[09/27 22:45:56] detectron2.evaluation.evaluator INFO: Inference done 103/2233. Dataloading: 0.0014 s/iter. Inference: 0.0522 s/iter. Eval: 0.0009 s/iter. Total: 0.0545 s/iter. ETA=0:01:56
+[09/27 22:46:01] detectron2.evaluation.evaluator INFO: Inference done 196/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0008 s/iter. Total: 0.0543 s/iter. ETA=0:01:50
+[09/27 22:46:06] detectron2.evaluation.evaluator INFO: Inference done 289/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0008 s/iter. Total: 0.0542 s/iter. ETA=0:01:45
+[09/27 22:46:12] detectron2.evaluation.evaluator INFO: Inference done 381/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0008 s/iter. Total: 0.0544 s/iter. ETA=0:01:40
+[09/27 22:46:17] detectron2.evaluation.evaluator INFO: Inference done 472/2233. Dataloading: 0.0014 s/iter. Inference: 0.0523 s/iter. Eval: 0.0008 s/iter. Total: 0.0546 s/iter. ETA=0:01:36
+[09/27 22:46:22] detectron2.evaluation.evaluator INFO: Inference done 564/2233. Dataloading: 0.0014 s/iter. Inference: 0.0523 s/iter. Eval: 0.0008 s/iter. Total: 0.0546 s/iter. ETA=0:01:31
+[09/27 22:46:27] detectron2.evaluation.evaluator INFO: Inference done 606/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0055 s/iter. Total: 0.0591 s/iter. ETA=0:01:36
+[09/27 22:46:32] detectron2.evaluation.evaluator INFO: Inference done 699/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0049 s/iter. Total: 0.0584 s/iter. ETA=0:01:29
+[09/27 22:46:37] detectron2.evaluation.evaluator INFO: Inference done 791/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0044 s/iter. Total: 0.0580 s/iter. ETA=0:01:23
+[09/27 22:46:42] detectron2.evaluation.evaluator INFO: Inference done 885/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0040 s/iter. Total: 0.0575 s/iter. ETA=0:01:17
+[09/27 22:46:47] detectron2.evaluation.evaluator INFO: Inference done 978/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0037 s/iter. Total: 0.0572 s/iter. ETA=0:01:11
+[09/27 22:46:52] detectron2.evaluation.evaluator INFO: Inference done 1072/2233. Dataloading: 0.0014 s/iter. Inference: 0.0519 s/iter. Eval: 0.0035 s/iter. Total: 0.0569 s/iter. ETA=0:01:06
+[09/27 22:46:57] detectron2.evaluation.evaluator INFO: Inference done 1166/2233. Dataloading: 0.0014 s/iter. Inference: 0.0519 s/iter. Eval: 0.0033 s/iter. Total: 0.0566 s/iter. ETA=0:01:00
+[09/27 22:47:02] detectron2.evaluation.evaluator INFO: Inference done 1257/2233. Dataloading: 0.0014 s/iter. Inference: 0.0519 s/iter. Eval: 0.0031 s/iter. Total: 0.0565 s/iter. ETA=0:00:55
+[09/27 22:47:07] detectron2.evaluation.evaluator INFO: Inference done 1346/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0029 s/iter. Total: 0.0565 s/iter. ETA=0:00:50
+[09/27 22:47:12] detectron2.evaluation.evaluator INFO: Inference done 1436/2233. Dataloading: 0.0014 s/iter. Inference: 0.0522 s/iter. Eval: 0.0028 s/iter. Total: 0.0564 s/iter. ETA=0:00:44
+[09/27 22:47:17] detectron2.evaluation.evaluator INFO: Inference done 1528/2233. Dataloading: 0.0014 s/iter. Inference: 0.0522 s/iter. Eval: 0.0027 s/iter. Total: 0.0563 s/iter. ETA=0:00:39
+[09/27 22:47:22] detectron2.evaluation.evaluator INFO: Inference done 1617/2233. Dataloading: 0.0014 s/iter. Inference: 0.0523 s/iter. Eval: 0.0026 s/iter. Total: 0.0564 s/iter. ETA=0:00:34
+[09/27 22:47:27] detectron2.evaluation.evaluator INFO: Inference done 1707/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0025 s/iter. Total: 0.0563 s/iter. ETA=0:00:29
+[09/27 22:47:32] detectron2.evaluation.evaluator INFO: Inference done 1797/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0024 s/iter. Total: 0.0563 s/iter. ETA=0:00:24
+[09/27 22:47:37] detectron2.evaluation.evaluator INFO: Inference done 1889/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0023 s/iter. Total: 0.0562 s/iter. ETA=0:00:19
+[09/27 22:47:42] detectron2.evaluation.evaluator INFO: Inference done 1979/2233. Dataloading: 0.0014 s/iter. Inference: 0.0525 s/iter. Eval: 0.0022 s/iter. Total: 0.0562 s/iter. ETA=0:00:14
+[09/27 22:47:47] detectron2.evaluation.evaluator INFO: Inference done 2071/2233. Dataloading: 0.0014 s/iter. Inference: 0.0525 s/iter. Eval: 0.0022 s/iter. Total: 0.0561 s/iter. ETA=0:00:09
+[09/27 22:47:52] detectron2.evaluation.evaluator INFO: Inference done 2162/2233. Dataloading: 0.0014 s/iter. Inference: 0.0525 s/iter. Eval: 0.0021 s/iter. Total: 0.0561 s/iter. ETA=0:00:03
+[09/27 22:47:56] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:05.245947 (0.056215 s / iter per device, on 4 devices)
+[09/27 22:47:56] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:56 (0.052508 s / iter per device, on 4 devices)
+[09/28 00:04:03] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 00:04:03] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 00:04:03] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 00:04:04] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 00:04:05] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 00:04:12] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 00:04:15] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0007 s/iter. Inference: 0.0519 s/iter. Eval: 0.0008 s/iter. Total: 0.0534 s/iter. ETA=0:01:58
+[09/28 00:04:20] detectron2.evaluation.evaluator INFO: Inference done 104/2233. Dataloading: 0.0013 s/iter. Inference: 0.0519 s/iter. Eval: 0.0008 s/iter. Total: 0.0541 s/iter. ETA=0:01:55
+[09/28 00:04:25] detectron2.evaluation.evaluator INFO: Inference done 197/2233. Dataloading: 0.0014 s/iter. Inference: 0.0518 s/iter. Eval: 0.0008 s/iter. Total: 0.0540 s/iter. ETA=0:01:49
+[09/28 00:04:30] detectron2.evaluation.evaluator INFO: Inference done 291/2233. Dataloading: 0.0014 s/iter. Inference: 0.0516 s/iter. Eval: 0.0008 s/iter. Total: 0.0538 s/iter. ETA=0:01:44
+[09/28 00:04:35] detectron2.evaluation.evaluator INFO: Inference done 385/2233. Dataloading: 0.0013 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:39
+[09/28 00:04:40] detectron2.evaluation.evaluator INFO: Inference done 479/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:34
+[09/28 00:04:45] detectron2.evaluation.evaluator INFO: Inference done 572/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:29
+[09/28 00:04:50] detectron2.evaluation.evaluator INFO: Inference done 665/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:24
+[09/28 00:04:55] detectron2.evaluation.evaluator INFO: Inference done 758/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:19
+[09/28 00:05:00] detectron2.evaluation.evaluator INFO: Inference done 852/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:14
+[09/28 00:05:05] detectron2.evaluation.evaluator INFO: Inference done 945/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0538 s/iter. ETA=0:01:09
+[09/28 00:05:10] detectron2.evaluation.evaluator INFO: Inference done 1039/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:01:04
+[09/28 00:05:15] detectron2.evaluation.evaluator INFO: Inference done 1132/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0008 s/iter. Total: 0.0537 s/iter. ETA=0:00:59
+[09/28 00:05:20] detectron2.evaluation.evaluator INFO: Inference done 1180/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0029 s/iter. Total: 0.0558 s/iter. ETA=0:00:58
+[09/28 00:05:26] detectron2.evaluation.evaluator INFO: Inference done 1273/2233. Dataloading: 0.0014 s/iter. Inference: 0.0515 s/iter. Eval: 0.0027 s/iter. Total: 0.0557 s/iter. ETA=0:00:53
+[09/28 00:05:31] detectron2.evaluation.evaluator INFO: Inference done 1364/2233. Dataloading: 0.0014 s/iter. Inference: 0.0516 s/iter. Eval: 0.0026 s/iter. Total: 0.0556 s/iter. ETA=0:00:48
+[09/28 00:05:36] detectron2.evaluation.evaluator INFO: Inference done 1455/2233. Dataloading: 0.0014 s/iter. Inference: 0.0517 s/iter. Eval: 0.0025 s/iter. Total: 0.0556 s/iter. ETA=0:00:43
+[09/28 00:05:41] detectron2.evaluation.evaluator INFO: Inference done 1547/2233. Dataloading: 0.0014 s/iter. Inference: 0.0518 s/iter. Eval: 0.0024 s/iter. Total: 0.0556 s/iter. ETA=0:00:38
+[09/28 00:05:46] detectron2.evaluation.evaluator INFO: Inference done 1639/2233. Dataloading: 0.0014 s/iter. Inference: 0.0518 s/iter. Eval: 0.0023 s/iter. Total: 0.0555 s/iter. ETA=0:00:32
+[09/28 00:05:51] detectron2.evaluation.evaluator INFO: Inference done 1731/2233. Dataloading: 0.0014 s/iter. Inference: 0.0518 s/iter. Eval: 0.0022 s/iter. Total: 0.0555 s/iter. ETA=0:00:27
+[09/28 00:05:56] detectron2.evaluation.evaluator INFO: Inference done 1821/2233. Dataloading: 0.0014 s/iter. Inference: 0.0519 s/iter. Eval: 0.0021 s/iter. Total: 0.0555 s/iter. ETA=0:00:22
+[09/28 00:06:01] detectron2.evaluation.evaluator INFO: Inference done 1913/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0021 s/iter. Total: 0.0554 s/iter. ETA=0:00:17
+[09/28 00:06:06] detectron2.evaluation.evaluator INFO: Inference done 2006/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0020 s/iter. Total: 0.0554 s/iter. ETA=0:00:12
+[09/28 00:06:11] detectron2.evaluation.evaluator INFO: Inference done 2096/2233. Dataloading: 0.0014 s/iter. Inference: 0.0520 s/iter. Eval: 0.0020 s/iter. Total: 0.0554 s/iter. ETA=0:00:07
+[09/28 00:06:16] detectron2.evaluation.evaluator INFO: Inference done 2186/2233. Dataloading: 0.0014 s/iter. Inference: 0.0521 s/iter. Eval: 0.0019 s/iter. Total: 0.0554 s/iter. ETA=0:00:02
+[09/28 00:06:19] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:03.915154 (0.055617 s / iter per device, on 4 devices)
+[09/28 00:06:19] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:56 (0.052140 s / iter per device, on 4 devices)
+[09/28 01:23:07] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 01:23:07] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 01:23:07] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 01:23:08] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 01:23:09] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 01:23:16] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 01:23:19] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0005 s/iter. Inference: 0.0565 s/iter. Eval: 0.0006 s/iter. Total: 0.0576 s/iter. ETA=0:02:08
+[09/28 01:23:24] detectron2.evaluation.evaluator INFO: Inference done 94/2233. Dataloading: 0.0016 s/iter. Inference: 0.0577 s/iter. Eval: 0.0008 s/iter. Total: 0.0602 s/iter. ETA=0:02:08
+[09/28 01:23:29] detectron2.evaluation.evaluator INFO: Inference done 185/2233. Dataloading: 0.0015 s/iter. Inference: 0.0551 s/iter. Eval: 0.0009 s/iter. Total: 0.0576 s/iter. ETA=0:01:57
+[09/28 01:23:34] detectron2.evaluation.evaluator INFO: Inference done 278/2233. Dataloading: 0.0015 s/iter. Inference: 0.0539 s/iter. Eval: 0.0009 s/iter. Total: 0.0563 s/iter. ETA=0:01:50
+[09/28 01:23:41] detectron2.evaluation.evaluator INFO: Inference done 353/2233. Dataloading: 0.0015 s/iter. Inference: 0.0536 s/iter. Eval: 0.0083 s/iter. Total: 0.0635 s/iter. ETA=0:01:59
+[09/28 01:23:46] detectron2.evaluation.evaluator INFO: Inference done 444/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0067 s/iter. Total: 0.0618 s/iter. ETA=0:01:50
+[09/28 01:23:51] detectron2.evaluation.evaluator INFO: Inference done 536/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0057 s/iter. Total: 0.0605 s/iter. ETA=0:01:42
+[09/28 01:23:56] detectron2.evaluation.evaluator INFO: Inference done 627/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0050 s/iter. Total: 0.0598 s/iter. ETA=0:01:35
+[09/28 01:24:01] detectron2.evaluation.evaluator INFO: Inference done 717/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0045 s/iter. Total: 0.0593 s/iter. ETA=0:01:29
+[09/28 01:24:06] detectron2.evaluation.evaluator INFO: Inference done 810/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0040 s/iter. Total: 0.0586 s/iter. ETA=0:01:23
+[09/28 01:24:11] detectron2.evaluation.evaluator INFO: Inference done 904/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0037 s/iter. Total: 0.0581 s/iter. ETA=0:01:17
+[09/28 01:24:16] detectron2.evaluation.evaluator INFO: Inference done 996/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0034 s/iter. Total: 0.0578 s/iter. ETA=0:01:11
+[09/28 01:24:21] detectron2.evaluation.evaluator INFO: Inference done 1089/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0032 s/iter. Total: 0.0575 s/iter. ETA=0:01:05
+[09/28 01:24:26] detectron2.evaluation.evaluator INFO: Inference done 1180/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0030 s/iter. Total: 0.0573 s/iter. ETA=0:01:00
+[09/28 01:24:31] detectron2.evaluation.evaluator INFO: Inference done 1269/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0029 s/iter. Total: 0.0572 s/iter. ETA=0:00:55
+[09/28 01:24:36] detectron2.evaluation.evaluator INFO: Inference done 1359/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0027 s/iter. Total: 0.0571 s/iter. ETA=0:00:49
+[09/28 01:24:41] detectron2.evaluation.evaluator INFO: Inference done 1449/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0026 s/iter. Total: 0.0571 s/iter. ETA=0:00:44
+[09/28 01:24:46] detectron2.evaluation.evaluator INFO: Inference done 1541/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0025 s/iter. Total: 0.0569 s/iter. ETA=0:00:39
+[09/28 01:24:51] detectron2.evaluation.evaluator INFO: Inference done 1630/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0024 s/iter. Total: 0.0569 s/iter. ETA=0:00:34
+[09/28 01:24:56] detectron2.evaluation.evaluator INFO: Inference done 1722/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0023 s/iter. Total: 0.0568 s/iter. ETA=0:00:29
+[09/28 01:25:01] detectron2.evaluation.evaluator INFO: Inference done 1810/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0023 s/iter. Total: 0.0568 s/iter. ETA=0:00:24
+[09/28 01:25:06] detectron2.evaluation.evaluator INFO: Inference done 1901/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0022 s/iter. Total: 0.0567 s/iter. ETA=0:00:18
+[09/28 01:25:11] detectron2.evaluation.evaluator INFO: Inference done 1990/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0021 s/iter. Total: 0.0567 s/iter. ETA=0:00:13
+[09/28 01:25:17] detectron2.evaluation.evaluator INFO: Inference done 2042/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0035 s/iter. Total: 0.0581 s/iter. ETA=0:00:11
+[09/28 01:25:22] detectron2.evaluation.evaluator INFO: Inference done 2134/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0034 s/iter. Total: 0.0580 s/iter. ETA=0:00:05
+[09/28 01:25:27] detectron2.evaluation.evaluator INFO: Inference done 2224/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0033 s/iter. Total: 0.0579 s/iter. ETA=0:00:00
+[09/28 01:25:28] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:09.344624 (0.058054 s / iter per device, on 4 devices)
+[09/28 01:25:28] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:58 (0.053172 s / iter per device, on 4 devices)
+[09/28 02:41:27] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 02:41:27] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 02:41:27] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 02:41:28] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 02:41:29] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 02:41:35] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 02:41:38] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0039 s/iter. Inference: 0.0575 s/iter. Eval: 0.0075 s/iter. Total: 0.0689 s/iter. ETA=0:02:33
+[09/28 02:41:45] detectron2.evaluation.evaluator INFO: Inference done 82/2233. Dataloading: 0.0024 s/iter. Inference: 0.0607 s/iter. Eval: 0.0336 s/iter. Total: 0.0968 s/iter. ETA=0:03:28
+[09/28 02:41:50] detectron2.evaluation.evaluator INFO: Inference done 174/2233. Dataloading: 0.0018 s/iter. Inference: 0.0563 s/iter. Eval: 0.0158 s/iter. Total: 0.0740 s/iter. ETA=0:02:32
+[09/28 02:41:55] detectron2.evaluation.evaluator INFO: Inference done 263/2233. Dataloading: 0.0017 s/iter. Inference: 0.0556 s/iter. Eval: 0.0106 s/iter. Total: 0.0679 s/iter. ETA=0:02:13
+[09/28 02:42:00] detectron2.evaluation.evaluator INFO: Inference done 354/2233. Dataloading: 0.0016 s/iter. Inference: 0.0549 s/iter. Eval: 0.0081 s/iter. Total: 0.0647 s/iter. ETA=0:02:01
+[09/28 02:42:05] detectron2.evaluation.evaluator INFO: Inference done 445/2233. Dataloading: 0.0016 s/iter. Inference: 0.0546 s/iter. Eval: 0.0066 s/iter. Total: 0.0628 s/iter. ETA=0:01:52
+[09/28 02:42:10] detectron2.evaluation.evaluator INFO: Inference done 535/2233. Dataloading: 0.0016 s/iter. Inference: 0.0544 s/iter. Eval: 0.0056 s/iter. Total: 0.0617 s/iter. ETA=0:01:44
+[09/28 02:42:15] detectron2.evaluation.evaluator INFO: Inference done 628/2233. Dataloading: 0.0015 s/iter. Inference: 0.0540 s/iter. Eval: 0.0049 s/iter. Total: 0.0606 s/iter. ETA=0:01:37
+[09/28 02:42:21] detectron2.evaluation.evaluator INFO: Inference done 717/2233. Dataloading: 0.0015 s/iter. Inference: 0.0541 s/iter. Eval: 0.0044 s/iter. Total: 0.0601 s/iter. ETA=0:01:31
+[09/28 02:42:26] detectron2.evaluation.evaluator INFO: Inference done 808/2233. Dataloading: 0.0015 s/iter. Inference: 0.0539 s/iter. Eval: 0.0040 s/iter. Total: 0.0595 s/iter. ETA=0:01:24
+[09/28 02:42:31] detectron2.evaluation.evaluator INFO: Inference done 898/2233. Dataloading: 0.0015 s/iter. Inference: 0.0538 s/iter. Eval: 0.0037 s/iter. Total: 0.0591 s/iter. ETA=0:01:18
+[09/28 02:42:36] detectron2.evaluation.evaluator INFO: Inference done 989/2233. Dataloading: 0.0015 s/iter. Inference: 0.0537 s/iter. Eval: 0.0034 s/iter. Total: 0.0587 s/iter. ETA=0:01:13
+[09/28 02:42:41] detectron2.evaluation.evaluator INFO: Inference done 1081/2233. Dataloading: 0.0015 s/iter. Inference: 0.0535 s/iter. Eval: 0.0032 s/iter. Total: 0.0584 s/iter. ETA=0:01:07
+[09/28 02:42:46] detectron2.evaluation.evaluator INFO: Inference done 1173/2233. Dataloading: 0.0015 s/iter. Inference: 0.0534 s/iter. Eval: 0.0030 s/iter. Total: 0.0581 s/iter. ETA=0:01:01
+[09/28 02:42:51] detectron2.evaluation.evaluator INFO: Inference done 1257/2233. Dataloading: 0.0016 s/iter. Inference: 0.0537 s/iter. Eval: 0.0029 s/iter. Total: 0.0582 s/iter. ETA=0:00:56
+[09/28 02:42:56] detectron2.evaluation.evaluator INFO: Inference done 1344/2233. Dataloading: 0.0016 s/iter. Inference: 0.0537 s/iter. Eval: 0.0028 s/iter. Total: 0.0581 s/iter. ETA=0:00:51
+[09/28 02:43:01] detectron2.evaluation.evaluator INFO: Inference done 1433/2233. Dataloading: 0.0016 s/iter. Inference: 0.0537 s/iter. Eval: 0.0026 s/iter. Total: 0.0580 s/iter. ETA=0:00:46
+[09/28 02:43:06] detectron2.evaluation.evaluator INFO: Inference done 1522/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0025 s/iter. Total: 0.0580 s/iter. ETA=0:00:41
+[09/28 02:43:11] detectron2.evaluation.evaluator INFO: Inference done 1609/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0025 s/iter. Total: 0.0579 s/iter. ETA=0:00:36
+[09/28 02:43:16] detectron2.evaluation.evaluator INFO: Inference done 1700/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0024 s/iter. Total: 0.0578 s/iter. ETA=0:00:30
+[09/28 02:43:21] detectron2.evaluation.evaluator INFO: Inference done 1726/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0044 s/iter. Total: 0.0598 s/iter. ETA=0:00:30
+[09/28 02:43:26] detectron2.evaluation.evaluator INFO: Inference done 1818/2233. Dataloading: 0.0016 s/iter. Inference: 0.0537 s/iter. Eval: 0.0042 s/iter. Total: 0.0596 s/iter. ETA=0:00:24
+[09/28 02:43:31] detectron2.evaluation.evaluator INFO: Inference done 1904/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0041 s/iter. Total: 0.0595 s/iter. ETA=0:00:19
+[09/28 02:43:36] detectron2.evaluation.evaluator INFO: Inference done 1992/2233. Dataloading: 0.0016 s/iter. Inference: 0.0538 s/iter. Eval: 0.0039 s/iter. Total: 0.0594 s/iter. ETA=0:00:14
+[09/28 02:43:41] detectron2.evaluation.evaluator INFO: Inference done 2078/2233. Dataloading: 0.0016 s/iter. Inference: 0.0539 s/iter. Eval: 0.0038 s/iter. Total: 0.0594 s/iter. ETA=0:00:09
+[09/28 02:43:46] detectron2.evaluation.evaluator INFO: Inference done 2166/2233. Dataloading: 0.0016 s/iter. Inference: 0.0539 s/iter. Eval: 0.0037 s/iter. Total: 0.0593 s/iter. ETA=0:00:03
+[09/28 02:43:50] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:12.382181 (0.059417 s / iter per device, on 4 devices)
+[09/28 02:43:50] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:02:00 (0.053910 s / iter per device, on 4 devices)
+[09/28 04:00:14] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 04:00:14] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 04:00:14] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 04:00:15] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 04:00:15] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 04:00:21] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 04:00:24] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0006 s/iter. Inference: 0.0486 s/iter. Eval: 0.0008 s/iter. Total: 0.0501 s/iter. ETA=0:01:51
+[09/28 04:00:29] detectron2.evaluation.evaluator INFO: Inference done 102/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0008 s/iter. Total: 0.0547 s/iter. ETA=0:01:56
+[09/28 04:00:34] detectron2.evaluation.evaluator INFO: Inference done 193/2233. Dataloading: 0.0014 s/iter. Inference: 0.0525 s/iter. Eval: 0.0009 s/iter. Total: 0.0548 s/iter. ETA=0:01:51
+[09/28 04:00:39] detectron2.evaluation.evaluator INFO: Inference done 284/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0009 s/iter. Total: 0.0549 s/iter. ETA=0:01:47
+[09/28 04:00:45] detectron2.evaluation.evaluator INFO: Inference done 332/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0087 s/iter. Total: 0.0628 s/iter. ETA=0:01:59
+[09/28 04:00:50] detectron2.evaluation.evaluator INFO: Inference done 427/2233. Dataloading: 0.0014 s/iter. Inference: 0.0522 s/iter. Eval: 0.0070 s/iter. Total: 0.0606 s/iter. ETA=0:01:49
+[09/28 04:00:55] detectron2.evaluation.evaluator INFO: Inference done 517/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0059 s/iter. Total: 0.0598 s/iter. ETA=0:01:42
+[09/28 04:01:00] detectron2.evaluation.evaluator INFO: Inference done 609/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0051 s/iter. Total: 0.0590 s/iter. ETA=0:01:35
+[09/28 04:01:05] detectron2.evaluation.evaluator INFO: Inference done 699/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0046 s/iter. Total: 0.0586 s/iter. ETA=0:01:29
+[09/28 04:01:10] detectron2.evaluation.evaluator INFO: Inference done 791/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0041 s/iter. Total: 0.0582 s/iter. ETA=0:01:23
+[09/28 04:01:15] detectron2.evaluation.evaluator INFO: Inference done 885/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0038 s/iter. Total: 0.0577 s/iter. ETA=0:01:17
+[09/28 04:01:20] detectron2.evaluation.evaluator INFO: Inference done 977/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0035 s/iter. Total: 0.0574 s/iter. ETA=0:01:12
+[09/28 04:01:25] detectron2.evaluation.evaluator INFO: Inference done 1067/2233. Dataloading: 0.0014 s/iter. Inference: 0.0525 s/iter. Eval: 0.0033 s/iter. Total: 0.0572 s/iter. ETA=0:01:06
+[09/28 04:01:30] detectron2.evaluation.evaluator INFO: Inference done 1160/2233. Dataloading: 0.0014 s/iter. Inference: 0.0524 s/iter. Eval: 0.0031 s/iter. Total: 0.0569 s/iter. ETA=0:01:01
+[09/28 04:01:35] detectron2.evaluation.evaluator INFO: Inference done 1248/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0029 s/iter. Total: 0.0569 s/iter. ETA=0:00:56
+[09/28 04:01:40] detectron2.evaluation.evaluator INFO: Inference done 1338/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0028 s/iter. Total: 0.0569 s/iter. ETA=0:00:50
+[09/28 04:01:45] detectron2.evaluation.evaluator INFO: Inference done 1429/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0026 s/iter. Total: 0.0568 s/iter. ETA=0:00:45
+[09/28 04:01:50] detectron2.evaluation.evaluator INFO: Inference done 1520/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0025 s/iter. Total: 0.0567 s/iter. ETA=0:00:40
+[09/28 04:01:55] detectron2.evaluation.evaluator INFO: Inference done 1609/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0024 s/iter. Total: 0.0567 s/iter. ETA=0:00:35
+[09/28 04:02:00] detectron2.evaluation.evaluator INFO: Inference done 1700/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0023 s/iter. Total: 0.0566 s/iter. ETA=0:00:30
+[09/28 04:02:05] detectron2.evaluation.evaluator INFO: Inference done 1790/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0023 s/iter. Total: 0.0565 s/iter. ETA=0:00:25
+[09/28 04:02:10] detectron2.evaluation.evaluator INFO: Inference done 1878/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0022 s/iter. Total: 0.0566 s/iter. ETA=0:00:20
+[09/28 04:02:15] detectron2.evaluation.evaluator INFO: Inference done 1968/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0021 s/iter. Total: 0.0565 s/iter. ETA=0:00:14
+[09/28 04:02:20] detectron2.evaluation.evaluator INFO: Inference done 2013/2233. Dataloading: 0.0028 s/iter. Inference: 0.0530 s/iter. Eval: 0.0021 s/iter. Total: 0.0579 s/iter. ETA=0:00:12
+[09/28 04:02:25] detectron2.evaluation.evaluator INFO: Inference done 2107/2233. Dataloading: 0.0027 s/iter. Inference: 0.0529 s/iter. Eval: 0.0020 s/iter. Total: 0.0577 s/iter. ETA=0:00:07
+[09/28 04:02:30] detectron2.evaluation.evaluator INFO: Inference done 2195/2233. Dataloading: 0.0027 s/iter. Inference: 0.0530 s/iter. Eval: 0.0020 s/iter. Total: 0.0577 s/iter. ETA=0:00:02
+[09/28 04:02:33] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:08.713416 (0.057771 s / iter per device, on 4 devices)
+[09/28 04:02:33] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:57 (0.052945 s / iter per device, on 4 devices)
+[09/28 05:19:09] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 05:19:09] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 05:19:09] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 05:19:10] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 05:19:10] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 05:19:16] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 05:19:19] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0008 s/iter. Inference: 0.0535 s/iter. Eval: 0.0090 s/iter. Total: 0.0633 s/iter. ETA=0:02:20
+[09/28 05:19:24] detectron2.evaluation.evaluator INFO: Inference done 99/2233. Dataloading: 0.0013 s/iter. Inference: 0.0553 s/iter. Eval: 0.0014 s/iter. Total: 0.0580 s/iter. ETA=0:02:03
+[09/28 05:19:29] detectron2.evaluation.evaluator INFO: Inference done 189/2233. Dataloading: 0.0015 s/iter. Inference: 0.0543 s/iter. Eval: 0.0011 s/iter. Total: 0.0569 s/iter. ETA=0:01:56
+[09/28 05:19:34] detectron2.evaluation.evaluator INFO: Inference done 281/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0010 s/iter. Total: 0.0562 s/iter. ETA=0:01:49
+[09/28 05:19:39] detectron2.evaluation.evaluator INFO: Inference done 373/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0010 s/iter. Total: 0.0558 s/iter. ETA=0:01:43
+[09/28 05:19:44] detectron2.evaluation.evaluator INFO: Inference done 463/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0009 s/iter. Total: 0.0559 s/iter. ETA=0:01:38
+[09/28 05:19:49] detectron2.evaluation.evaluator INFO: Inference done 556/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0009 s/iter. Total: 0.0556 s/iter. ETA=0:01:33
+[09/28 05:19:54] detectron2.evaluation.evaluator INFO: Inference done 646/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0009 s/iter. Total: 0.0556 s/iter. ETA=0:01:28
+[09/28 05:19:59] detectron2.evaluation.evaluator INFO: Inference done 737/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0009 s/iter. Total: 0.0556 s/iter. ETA=0:01:23
+[09/28 05:20:04] detectron2.evaluation.evaluator INFO: Inference done 828/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0009 s/iter. Total: 0.0556 s/iter. ETA=0:01:18
+[09/28 05:20:09] detectron2.evaluation.evaluator INFO: Inference done 920/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0009 s/iter. Total: 0.0555 s/iter. ETA=0:01:12
+[09/28 05:20:15] detectron2.evaluation.evaluator INFO: Inference done 1011/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0009 s/iter. Total: 0.0555 s/iter. ETA=0:01:07
+[09/28 05:20:21] detectron2.evaluation.evaluator INFO: Inference done 1078/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0035 s/iter. Total: 0.0581 s/iter. ETA=0:01:07
+[09/28 05:20:26] detectron2.evaluation.evaluator INFO: Inference done 1172/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0033 s/iter. Total: 0.0577 s/iter. ETA=0:01:01
+[09/28 05:20:31] detectron2.evaluation.evaluator INFO: Inference done 1259/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0031 s/iter. Total: 0.0577 s/iter. ETA=0:00:56
+[09/28 05:20:36] detectron2.evaluation.evaluator INFO: Inference done 1347/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0030 s/iter. Total: 0.0577 s/iter. ETA=0:00:51
+[09/28 05:20:41] detectron2.evaluation.evaluator INFO: Inference done 1434/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0028 s/iter. Total: 0.0577 s/iter. ETA=0:00:46
+[09/28 05:20:46] detectron2.evaluation.evaluator INFO: Inference done 1522/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0027 s/iter. Total: 0.0577 s/iter. ETA=0:00:40
+[09/28 05:20:51] detectron2.evaluation.evaluator INFO: Inference done 1611/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0026 s/iter. Total: 0.0576 s/iter. ETA=0:00:35
+[09/28 05:20:56] detectron2.evaluation.evaluator INFO: Inference done 1698/2233. Dataloading: 0.0014 s/iter. Inference: 0.0536 s/iter. Eval: 0.0025 s/iter. Total: 0.0576 s/iter. ETA=0:00:30
+[09/28 05:21:01] detectron2.evaluation.evaluator INFO: Inference done 1786/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0024 s/iter. Total: 0.0576 s/iter. ETA=0:00:25
+[09/28 05:21:06] detectron2.evaluation.evaluator INFO: Inference done 1875/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0024 s/iter. Total: 0.0575 s/iter. ETA=0:00:20
+[09/28 05:21:11] detectron2.evaluation.evaluator INFO: Inference done 1963/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0023 s/iter. Total: 0.0575 s/iter. ETA=0:00:15
+[09/28 05:21:16] detectron2.evaluation.evaluator INFO: Inference done 2052/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0022 s/iter. Total: 0.0574 s/iter. ETA=0:00:10
+[09/28 05:21:21] detectron2.evaluation.evaluator INFO: Inference done 2142/2233. Dataloading: 0.0014 s/iter. Inference: 0.0537 s/iter. Eval: 0.0022 s/iter. Total: 0.0574 s/iter. ETA=0:00:05
+[09/28 05:21:26] detectron2.evaluation.evaluator INFO: Inference done 2231/2233. Dataloading: 0.0014 s/iter. Inference: 0.0538 s/iter. Eval: 0.0021 s/iter. Total: 0.0573 s/iter. ETA=0:00:00
+[09/28 05:21:27] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:08.055315 (0.057475 s / iter per device, on 4 devices)
+[09/28 05:21:27] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:59 (0.053754 s / iter per device, on 4 devices)
+[09/28 06:18:32] detectron2.engine.hooks INFO: Overall training speed: 58682 iterations in 14:26:21 (0.8858 s / it)
+[09/28 06:18:32] detectron2.engine.hooks INFO: Total training time: 15:22:18 (0:55:57 on hooks)
+[09/28 06:18:43] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1333, sample_style='choice')]
+[09/28 06:18:43] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 06:18:43] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 06:18:44] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 06:18:45] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 06:18:52] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 06:18:55] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0009 s/iter. Inference: 0.0678 s/iter. Eval: 0.0009 s/iter. Total: 0.0696 s/iter. ETA=0:02:34
+[09/28 06:19:00] detectron2.evaluation.evaluator INFO: Inference done 98/2233. Dataloading: 0.0016 s/iter. Inference: 0.0562 s/iter. Eval: 0.0008 s/iter. Total: 0.0587 s/iter. ETA=0:02:05
+[09/28 06:19:05] detectron2.evaluation.evaluator INFO: Inference done 146/2233. Dataloading: 0.0015 s/iter. Inference: 0.0550 s/iter. Eval: 0.0178 s/iter. Total: 0.0743 s/iter. ETA=0:02:35
+[09/28 06:19:10] detectron2.evaluation.evaluator INFO: Inference done 238/2233. Dataloading: 0.0015 s/iter. Inference: 0.0538 s/iter. Eval: 0.0111 s/iter. Total: 0.0665 s/iter. ETA=0:02:12
+[09/28 06:19:15] detectron2.evaluation.evaluator INFO: Inference done 332/2233. Dataloading: 0.0015 s/iter. Inference: 0.0530 s/iter. Eval: 0.0081 s/iter. Total: 0.0627 s/iter. ETA=0:01:59
+[09/28 06:19:20] detectron2.evaluation.evaluator INFO: Inference done 424/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0065 s/iter. Total: 0.0609 s/iter. ETA=0:01:50
+[09/28 06:19:25] detectron2.evaluation.evaluator INFO: Inference done 516/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0055 s/iter. Total: 0.0597 s/iter. ETA=0:01:42
+[09/28 06:19:30] detectron2.evaluation.evaluator INFO: Inference done 607/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0048 s/iter. Total: 0.0590 s/iter. ETA=0:01:36
+[09/28 06:19:35] detectron2.evaluation.evaluator INFO: Inference done 700/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0043 s/iter. Total: 0.0584 s/iter. ETA=0:01:29
+[09/28 06:19:40] detectron2.evaluation.evaluator INFO: Inference done 792/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0039 s/iter. Total: 0.0579 s/iter. ETA=0:01:23
+[09/28 06:19:45] detectron2.evaluation.evaluator INFO: Inference done 883/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0036 s/iter. Total: 0.0577 s/iter. ETA=0:01:17
+[09/28 06:19:50] detectron2.evaluation.evaluator INFO: Inference done 974/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0033 s/iter. Total: 0.0574 s/iter. ETA=0:01:12
+[09/28 06:19:55] detectron2.evaluation.evaluator INFO: Inference done 1066/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0031 s/iter. Total: 0.0572 s/iter. ETA=0:01:06
+[09/28 06:20:00] detectron2.evaluation.evaluator INFO: Inference done 1157/2233. Dataloading: 0.0014 s/iter. Inference: 0.0526 s/iter. Eval: 0.0029 s/iter. Total: 0.0570 s/iter. ETA=0:01:01
+[09/28 06:20:05] detectron2.evaluation.evaluator INFO: Inference done 1245/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0028 s/iter. Total: 0.0570 s/iter. ETA=0:00:56
+[09/28 06:20:10] detectron2.evaluation.evaluator INFO: Inference done 1333/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0027 s/iter. Total: 0.0570 s/iter. ETA=0:00:51
+[09/28 06:20:15] detectron2.evaluation.evaluator INFO: Inference done 1421/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0025 s/iter. Total: 0.0570 s/iter. ETA=0:00:46
+[09/28 06:20:20] detectron2.evaluation.evaluator INFO: Inference done 1510/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0024 s/iter. Total: 0.0570 s/iter. ETA=0:00:41
+[09/28 06:20:25] detectron2.evaluation.evaluator INFO: Inference done 1597/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0024 s/iter. Total: 0.0570 s/iter. ETA=0:00:36
+[09/28 06:20:30] detectron2.evaluation.evaluator INFO: Inference done 1687/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0023 s/iter. Total: 0.0570 s/iter. ETA=0:00:31
+[09/28 06:20:36] detectron2.evaluation.evaluator INFO: Inference done 1742/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0037 s/iter. Total: 0.0585 s/iter. ETA=0:00:28
+[09/28 06:20:41] detectron2.evaluation.evaluator INFO: Inference done 1828/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0036 s/iter. Total: 0.0585 s/iter. ETA=0:00:23
+[09/28 06:20:46] detectron2.evaluation.evaluator INFO: Inference done 1918/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0034 s/iter. Total: 0.0583 s/iter. ETA=0:00:18
+[09/28 06:20:51] detectron2.evaluation.evaluator INFO: Inference done 2009/2233. Dataloading: 0.0014 s/iter. Inference: 0.0534 s/iter. Eval: 0.0033 s/iter. Total: 0.0582 s/iter. ETA=0:00:13
+[09/28 06:20:56] detectron2.evaluation.evaluator INFO: Inference done 2098/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0032 s/iter. Total: 0.0582 s/iter. ETA=0:00:07
+[09/28 06:21:01] detectron2.evaluation.evaluator INFO: Inference done 2187/2233. Dataloading: 0.0014 s/iter. Inference: 0.0535 s/iter. Eval: 0.0031 s/iter. Total: 0.0581 s/iter. ETA=0:00:02
+[09/28 06:21:04] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:09.575770 (0.058158 s / iter per device, on 4 devices)
+[09/28 06:21:04] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:59 (0.053469 s / iter per device, on 4 devices)
+[09/28 09:26:40] detectron2 INFO: Rank of current process: 2. World size: 4
+[09/28 09:26:41] detectron2 INFO: Environment info:
+-------------------------------  ----------------------------------------------------------------------------------
+sys.platform                     linux
+Python                           3.9.16 (main, Mar  8 2023, 14:00:05) [GCC 11.2.0]
+numpy                            1.23.5
+detectron2                       0.6 @/data/zelinliu/detectron2/detectron2
+Compiler                         GCC 9.4
+CUDA compiler                    CUDA 11.4
+detectron2 arch flags            8.6
+DETECTRON2_ENV_MODULE            <not set>
+PyTorch                          1.9.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torch
+PyTorch debug build              False
+torch._C._GLIBCXX_USE_CXX11_ABI  False
+GPU available                    Yes
+GPU 0,1,2,3                      NVIDIA GeForce RTX 3090 (arch=8.6)
+Driver version                   470.199.02
+CUDA_HOME                        /usr/local/cuda-11.4
+Pillow                           9.5.0
+torchvision                      0.10.1+cu111 @/home/lzl/miniconda3/envs/d2/lib/python3.9/site-packages/torchvision
+torchvision arch flags           3.5, 5.0, 6.0, 7.0, 7.5, 8.0, 8.6
+fvcore                           0.1.5.post20221221
+iopath                           0.1.9
+cv2                              4.7.0
+-------------------------------  ----------------------------------------------------------------------------------
+PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) Math Kernel Library Version 2020.0.0 Product Build 20191122 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v2.1.2 (Git Hash 98be7e8afa711dc9b66c8ff3504129cb82013cdb)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.1
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS_INFO=mkl, BUILD_TYPE=Release, CUDA_VERSION=11.1, CUDNN_VERSION=8.0.5, CXX_COMPILER=/opt/rh/devtoolset-7/root/usr/bin/c++, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_KINETO -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, LAPACK_INFO=mkl, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, TORCH_VERSION=1.9.1, USE_CUDA=ON, USE_CUDNN=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+[09/28 09:26:41] detectron2 INFO: Command line arguments: Namespace(config_file='configs/MDR-r50-500pro-50e.yaml', resume=False, eval_only=True, num_gpus=4, num_machines=1, machine_rank=0, dist_url='tcp://127.0.0.1:50153', opts=['MODEL.WEIGHTS', '/data/zelinliu/SparseRCNN/output_mix20/model_final.pth'])
+[09/28 09:26:41] detectron2 INFO: Contents of args.config_file=configs/MDR-r50-500pro-50e.yaml:
+[38;5;197m_BASE_[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mBase-MDR.yaml[39m[38;5;186m"[39m
+[38;5;197mMODEL[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mWEIGHTS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186m/data/zelinliu/SparseRCNN/resnet50-0676ba61.pth[39m[38;5;186m"[39m
+[38;5;15m  [39m[38;5;197mRESNETS[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mDEPTH[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m50[39m
+[38;5;15m    [39m[38;5;197mSTRIDE_IN_1X1[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mMDR[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mNUM_PROPOSALS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m500[39m
+[38;5;15m    [39m[38;5;197mNUM_CLASSES[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1[39m
+[38;5;197mDATASETS[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mTEST[39m[38;5;15m:[39m[38;5;15m  [39m[38;5;141m("my_val",)[39m
+[38;5;197mSOLVER[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mSTEPS[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(49532,[39m[38;5;141m [39m[38;5;141m58966)[39m[38;5;15m [39m[38;5;242m# 1769[39m
+[38;5;15m  [39m[38;5;197mMAX_ITER[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m63684[39m[38;5;15m [39m[38;5;242m#1769*36[39m
+[38;5;15m  [39m[38;5;197mCHECKPOINT_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;15m  [39m[38;5;197mAMP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m[38;5;15m [39m[38;5;242m# 暂时不支持混合精度训练 以及 半精度推理[39m
+[38;5;197mTEST[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mEVAL_PERIOD[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m5000[39m
+[38;5;197mINPUT[39m[38;5;15m:[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m(640,[39m[38;5;141m [39m[38;5;141m672,[39m[38;5;141m [39m[38;5;141m704,[39m[38;5;141m [39m[38;5;141m736,[39m[38;5;141m [39m[38;5;141m768,[39m[38;5;141m [39m[38;5;141m800,[39m[38;5;141m [39m[38;5;141m832,[39m[38;5;141m [39m[38;5;141m864)[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TRAIN[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1620[39m
+[38;5;15m  [39m[38;5;197mMIN_SIZE_TEST[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m800[39m
+[38;5;15m  [39m[38;5;197mMAX_SIZE_TEST[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141m1500[39m
+[38;5;15m  [39m[38;5;197mCROP[39m[38;5;15m:[39m
+[38;5;15m    [39m[38;5;197mENABLED[39m[38;5;15m:[39m[38;5;15m [39m[38;5;141mFalse[39m
+[38;5;15m  [39m[38;5;197mFORMAT[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186mRGB[39m[38;5;186m"[39m
+[38;5;197mOUTPUT_DIR[39m[38;5;15m:[39m[38;5;15m [39m[38;5;186m"[39m[38;5;186moutput_mix20[39m[38;5;186m"[39m
+
+[09/28 09:26:43] detectron2.engine.defaults INFO: Model:
+MDR(
+  (backbone): FPN(
+    (fpn_lateral2): Conv2d(256, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral3): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output3): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral4): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output4): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (fpn_lateral5): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1))
+    (fpn_output5): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (top_block): LastLevelMaxPool()
+    (bottom_up): ResNet(
+      (stem): BasicStem(
+        (conv1): Conv2d(
+          3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
+          (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+        )
+      )
+      (res2): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=64, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+        )
+      )
+      (res3): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=128, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+        )
+      )
+      (res4): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            512, 1024, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (3): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (4): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+        (5): BottleneckBlock(
+          (conv1): Conv2d(
+            1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=256, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=1024, eps=1e-05)
+          )
+        )
+      )
+      (res5): Sequential(
+        (0): BottleneckBlock(
+          (shortcut): Conv2d(
+            1024, 2048, kernel_size=(1, 1), stride=(2, 2), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+          (conv1): Conv2d(
+            1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (1): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+        (2): BottleneckBlock(
+          (conv1): Conv2d(
+            2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv2): Conv2d(
+            512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=512, eps=1e-05)
+          )
+          (conv3): Conv2d(
+            512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False
+            (norm): FrozenBatchNorm2d(num_features=2048, eps=1e-05)
+          )
+        )
+      )
+    )
+  )
+  (init_proposal_features): Embedding(500, 256)
+  (init_proposal_boxes): Embedding(500, 4)
+  (head): DynamicHead(
+    (box_pooler): ROIPooler(
+      (level_poolers): ModuleList(
+        (0): ROIAlign(output_size=(7, 7), spatial_scale=0.25, sampling_ratio=2, aligned=True)
+        (1): ROIAlign(output_size=(7, 7), spatial_scale=0.125, sampling_ratio=2, aligned=True)
+        (2): ROIAlign(output_size=(7, 7), spatial_scale=0.0625, sampling_ratio=2, aligned=True)
+        (3): ROIAlign(output_size=(7, 7), spatial_scale=0.03125, sampling_ratio=2, aligned=True)
+      )
+    )
+    (head_series): ModuleList(
+      (0): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (1): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (2): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (3): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (4): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+      (5): RCNNHead(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=256, out_features=256, bias=True)
+        )
+        (inst_interact): DynamicConv(
+          (dynamic_layer): Linear(in_features=256, out_features=32768, bias=True)
+          (norm1): LayerNorm((64,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (activation): ReLU(inplace=True)
+          (out_layer): Linear(in_features=12544, out_features=256, bias=True)
+          (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        )
+        (linear1): Linear(in_features=256, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.0, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=256, bias=True)
+        (norm1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (norm3): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.0, inplace=False)
+        (dropout2): Dropout(p=0.0, inplace=False)
+        (dropout3): Dropout(p=0.0, inplace=False)
+        (cls_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+        )
+        (reg_module): ModuleList(
+          (0): Linear(in_features=256, out_features=256, bias=False)
+          (1): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (2): ReLU(inplace=True)
+          (3): Linear(in_features=256, out_features=256, bias=False)
+          (4): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (5): ReLU(inplace=True)
+          (6): Linear(in_features=256, out_features=256, bias=False)
+          (7): LayerNorm((256,), eps=1e-05, elementwise_affine=True)
+          (8): ReLU(inplace=True)
+        )
+        (class_logits): Linear(in_features=256, out_features=1, bias=True)
+        (bboxes_delta): Linear(in_features=256, out_features=4, bias=True)
+      )
+    )
+  )
+  (criterion): SetCriterion(
+    (matcher): HungarianMatcher()
+  )
+)
+[09/28 09:26:43] detectron2.checkpoint.detection_checkpoint INFO: [DetectionCheckpointer] Loading from /data/zelinliu/SparseRCNN/output_mix20/model_final.pth ...
+[09/28 09:26:43] fvcore.common.checkpoint INFO: [Checkpointer] Loading from /data/zelinliu/SparseRCNN/output_mix20/model_final.pth ...
+[09/28 09:26:56] detectron2.data.build INFO: Distribution of instances among all 1 categories:
+[36m|  category  | #instances   |
+|:----------:|:-------------|
+| pedestrian | 1134614      |
+|            |              |[0m
+[09/28 09:26:56] detectron2.data.dataset_mapper INFO: [DatasetMapper] Augmentations used in inference: [ResizeShortestEdge(short_edge_length=(800, 800), max_size=1500, sample_style='choice')]
+[09/28 09:26:56] detectron2.data.common INFO: Serializing the dataset using: <class 'detectron2.data.common._TorchSerializedList'>
+[09/28 09:26:56] detectron2.data.common INFO: Serializing 8931 elements to byte tensors and concatenating them all ...
+[09/28 09:26:57] detectron2.data.common INFO: Serialized dataset takes 72.55 MiB
+[09/28 09:26:57] detectron2.evaluation.coco_evaluation WARNING: COCO Evaluator instantiated using config, this is deprecated behavior. Please pass in explicit arguments instead.
+[09/28 09:27:03] detectron2.evaluation.evaluator INFO: Start inference on 2233 batches
+[09/28 09:27:07] detectron2.evaluation.evaluator INFO: Inference done 11/2233. Dataloading: 0.0006 s/iter. Inference: 0.0568 s/iter. Eval: 0.0007 s/iter. Total: 0.0581 s/iter. ETA=0:02:09
+[09/28 09:27:12] detectron2.evaluation.evaluator INFO: Inference done 102/2233. Dataloading: 0.0013 s/iter. Inference: 0.0531 s/iter. Eval: 0.0008 s/iter. Total: 0.0553 s/iter. ETA=0:01:57
+[09/28 09:27:17] detectron2.evaluation.evaluator INFO: Inference done 192/2233. Dataloading: 0.0014 s/iter. Inference: 0.0533 s/iter. Eval: 0.0008 s/iter. Total: 0.0555 s/iter. ETA=0:01:53
+[09/28 09:27:22] detectron2.evaluation.evaluator INFO: Inference done 283/2233. Dataloading: 0.0014 s/iter. Inference: 0.0532 s/iter. Eval: 0.0008 s/iter. Total: 0.0555 s/iter. ETA=0:01:48
+[09/28 09:27:27] detectron2.evaluation.evaluator INFO: Inference done 375/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0008 s/iter. Total: 0.0553 s/iter. ETA=0:01:42
+[09/28 09:27:32] detectron2.evaluation.evaluator INFO: Inference done 467/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0008 s/iter. Total: 0.0552 s/iter. ETA=0:01:37
+[09/28 09:27:37] detectron2.evaluation.evaluator INFO: Inference done 544/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0025 s/iter. Total: 0.0567 s/iter. ETA=0:01:35
+[09/28 09:27:42] detectron2.evaluation.evaluator INFO: Inference done 636/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0022 s/iter. Total: 0.0564 s/iter. ETA=0:01:30
+[09/28 09:27:47] detectron2.evaluation.evaluator INFO: Inference done 726/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0021 s/iter. Total: 0.0563 s/iter. ETA=0:01:24
+[09/28 09:27:52] detectron2.evaluation.evaluator INFO: Inference done 817/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0019 s/iter. Total: 0.0562 s/iter. ETA=0:01:19
+[09/28 09:27:57] detectron2.evaluation.evaluator INFO: Inference done 907/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0018 s/iter. Total: 0.0561 s/iter. ETA=0:01:14
+[09/28 09:28:02] detectron2.evaluation.evaluator INFO: Inference done 1000/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0017 s/iter. Total: 0.0559 s/iter. ETA=0:01:08
+[09/28 09:28:07] detectron2.evaluation.evaluator INFO: Inference done 1092/2233. Dataloading: 0.0014 s/iter. Inference: 0.0527 s/iter. Eval: 0.0017 s/iter. Total: 0.0558 s/iter. ETA=0:01:03
+[09/28 09:28:12] detectron2.evaluation.evaluator INFO: Inference done 1183/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0016 s/iter. Total: 0.0558 s/iter. ETA=0:00:58
+[09/28 09:28:17] detectron2.evaluation.evaluator INFO: Inference done 1254/2233. Dataloading: 0.0014 s/iter. Inference: 0.0528 s/iter. Eval: 0.0024 s/iter. Total: 0.0566 s/iter. ETA=0:00:55
+[09/28 09:28:22] detectron2.evaluation.evaluator INFO: Inference done 1343/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0023 s/iter. Total: 0.0566 s/iter. ETA=0:00:50
+[09/28 09:28:27] detectron2.evaluation.evaluator INFO: Inference done 1432/2233. Dataloading: 0.0014 s/iter. Inference: 0.0529 s/iter. Eval: 0.0022 s/iter. Total: 0.0566 s/iter. ETA=0:00:45
+[09/28 09:28:32] detectron2.evaluation.evaluator INFO: Inference done 1522/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0021 s/iter. Total: 0.0566 s/iter. ETA=0:00:40
+[09/28 09:28:37] detectron2.evaluation.evaluator INFO: Inference done 1611/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0020 s/iter. Total: 0.0565 s/iter. ETA=0:00:35
+[09/28 09:28:42] detectron2.evaluation.evaluator INFO: Inference done 1703/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0020 s/iter. Total: 0.0564 s/iter. ETA=0:00:29
+[09/28 09:28:47] detectron2.evaluation.evaluator INFO: Inference done 1793/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0019 s/iter. Total: 0.0564 s/iter. ETA=0:00:24
+[09/28 09:28:52] detectron2.evaluation.evaluator INFO: Inference done 1884/2233. Dataloading: 0.0014 s/iter. Inference: 0.0530 s/iter. Eval: 0.0019 s/iter. Total: 0.0563 s/iter. ETA=0:00:19
+[09/28 09:28:57] detectron2.evaluation.evaluator INFO: Inference done 1973/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0018 s/iter. Total: 0.0563 s/iter. ETA=0:00:14
+[09/28 09:29:02] detectron2.evaluation.evaluator INFO: Inference done 2062/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0018 s/iter. Total: 0.0563 s/iter. ETA=0:00:09
+[09/28 09:29:08] detectron2.evaluation.evaluator INFO: Inference done 2137/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0024 s/iter. Total: 0.0569 s/iter. ETA=0:00:05
+[09/28 09:29:13] detectron2.evaluation.evaluator INFO: Inference done 2227/2233. Dataloading: 0.0014 s/iter. Inference: 0.0531 s/iter. Eval: 0.0023 s/iter. Total: 0.0569 s/iter. ETA=0:00:00
+[09/28 09:29:14] detectron2.evaluation.evaluator INFO: Total inference time: 0:02:07.137373 (0.057063 s / iter per device, on 4 devices)
+[09/28 09:29:14] detectron2.evaluation.evaluator INFO: Total inference pure compute time: 0:01:58 (0.053111 s / iter per device, on 4 devices)

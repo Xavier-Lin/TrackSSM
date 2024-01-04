@@ -110,9 +110,9 @@ class TrackSSM(nn.Module):
                 atten_mask[i * num_noise_tracks: i * num_noise_tracks + num_tracks, i * num_noise_tracks: i * num_noise_tracks + num_tracks] = 0
         return atten_mask
                     
-    def _update_boxes_and_feats(self, tr_instances: Instances, vaild_ratio: torch.Tensor):
+    def _update_boxes_and_feats(self, tr_instances: Instances, vaild_ratio: torch.Tensor, img_whwh_nopad):
         # num_trks = len(tr_instances)
-        img_whwh_nopad = tr_instances.imgs_whwh[0]
+        # img_whwh_nopad = tr_instances.imgs_whwh[0]
 
         tr_boxes = tr_instances.pred_boxes.clone() if self.training else tr_instances.inp_boxes.clone()
         all_objs_boxes = box_xyxy_to_cxcywh(tr_boxes)# cx cy w h
@@ -134,13 +134,12 @@ class TrackSSM(nn.Module):
         
         return all_objs_boxes, query_feats, atten_mask, all_pos_embeddding
        
-    def forward(self, srcs: List,  track_instances: Instances):
-        # import pdb;pdb.set_trace()
+    def forward(self, srcs: List,  track_instances: Instances, img_whwh: torch.Tensor):
         bs = srcs[0].shape[0]
         
-        vaild_ratio = self.get_vaild_ratio(srcs, track_instances.imgs_whwh[0])
+        vaild_ratio = self.get_vaild_ratio(srcs, img_whwh[0])
         group_boxes, group_query_feats, atten_mask, group_pos_embeddding = self._update_boxes_and_feats(
-            track_instances, vaild_ratio
+            track_instances, vaild_ratio, img_whwh[0]
         )
         
         bboxes = box_cxcywh_to_xyxy(group_boxes).unsqueeze(0)
@@ -308,7 +307,8 @@ class MotionHead(nn.Module):
         for b in range(N):
             proposal_boxes.append(Boxes(self.scale_bboxes(bboxes[b])))
         flow_features = pooler(features, proposal_boxes)  
-        flow_features = flow_features.view(N * nr_boxes, self.d_model, -1).permute(2, 0, 1) # 根据roi提取流引导特征
+        
+        flow_features = flow_features.view(N * nr_boxes, self.d_model, -1).permute(2, 0, 1)  if flow_features.shape[0] != 0 else flow_features.flatten(2,3).permute(2, 0, 1) # 根据roi提取流引导特征
         #  features=[ p2.feat,  p3.feat,   p4.feat,    p5.feat]  bz C h w 
         # -> (roi_output_size**2, bz*num_proposal,  C)  
         
@@ -325,8 +325,7 @@ class MotionHead(nn.Module):
         position_embedding = position_embedding.view(1, N * nr_boxes, self.d_model)
         reg_feature = self.motion(position_embedding, flow_features)
         cls_feature = self.forward_ffn(flow_features)
-        
-        cls_feature = cls_feature.transpose(0, 1).reshape(N * nr_boxes, -1)
+        cls_feature = cls_feature.transpose(0, 1).reshape(N * nr_boxes, -1) if cls_feature.shape[1] != 0 else cls_feature.transpose(0, 1).flatten(1)
         for cls_layer in self.cls_module:
             cls_feature = cls_layer(cls_feature)
         for reg_layer in self.reg_module:
@@ -336,7 +335,10 @@ class MotionHead(nn.Module):
         pred_bboxes = self.apply_deltas(bboxes_deltas, bboxes.view(-1, 4))
         # pred_bboxes = self.bboxes_delta(reg_feature).sigmoid()# 归一化的 cx cy w h
         # import pdb;pdb.set_trace()
-        return class_logits.view(N, nr_boxes, -1), pred_bboxes.view(N, nr_boxes, -1), hidden_embeddings.view(N, nr_boxes, -1)
+        if nr_boxes != 0:
+            return class_logits.view(N, nr_boxes, -1), pred_bboxes.view(N, nr_boxes, -1), hidden_embeddings.view(N, nr_boxes, -1)
+        else:
+            return class_logits.unsqueeze(0), pred_bboxes.unsqueeze(0), hidden_embeddings
 
 
 class MotionE(nn.Module):

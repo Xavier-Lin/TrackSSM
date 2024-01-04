@@ -19,8 +19,6 @@ from .util.box_ops import box_cxcywh_to_xyxy, generalized_box_iou, matched_boxli
 from detectron2.structures import Boxes, Instances
 from scipy.optimize import linear_sum_assignment
 
-
-
 #--------------- detection loss --------------------------
 class SetCriterion(nn.Module):
     """ This class computes the loss for MDR.
@@ -91,7 +89,6 @@ class SetCriterion(nn.Module):
             losses['class_error'] = 100 - accuracy(src_logits[idx], target_classes_o)[0]
         return losses
 
-
     def loss_boxes(self, outputs, targets, indices, num_boxes):
         """Compute the losses related to the bounding boxes, the L1 regression loss and the GIoU loss
            targets dicts must contain the key "boxes" containing a tensor of dim [nb_target_boxes, 4]
@@ -197,6 +194,8 @@ class SetCriterion(nn.Module):
         if self.cfg.MODEL.MDR.IS_TRAIN:
             return losses, indices_without_aux         
         return losses
+    
+
 
 
 #--------------- align detection loss --------------------------
@@ -233,40 +232,90 @@ class AlignCriterion(nn.Module):
             # self.register_buffer('empty_weight', empty_weight)
 
     def loss_labels(self, outputs, targets, indices, num_boxes, log=False):
-        """Classification loss (NLL)
+        """Classification loss (Binary focal loss)
         targets dicts must contain the key "labels" containing a tensor of dim [nb_target_boxes]
         """
-        assert 'pred_logits' in outputs and 'pred_boxes' in outputs
-        src_logits = outputs['pred_logits']
-        src_boxes = outputs['pred_boxes'][idx]
-        target_boxes = torch.cat([t['boxes_xyxy'][i] for t, (_, i) in zip(targets, indices)], dim=0)
+        assert "pred_logits" in outputs
+        src_logits = outputs["pred_logits"]
 
-        losses = {}
         idx = self._get_src_permutation_idx(indices)
         target_classes_o = torch.cat([t["labels"][J] for t, (_, J) in zip(targets, indices)])
-        pos_idx_c = idx + (target_classes_o.cpu(), )
+        target_classes = torch.full(
+            src_logits.shape[:2],
+            self.num_classes,
+            dtype=torch.int64,
+            device=src_logits.device,
+        )
+        target_classes[idx] = target_classes_o
 
-        prob = src_logits.sigmoid()
-        pos_weights = torch.zeros_like(src_logits)
-        neg_weights =  prob ** self.focal_loss_gamma
-        #ious_scores between matched boxes and GT boxes
-        iou_scores = torch.diag(box_ops.box_iou(box_cxcywh_to_xyxy(src_boxes), box_cxcywh_to_xyxy( target_boxes))[0])
-        #t is the quality metric
-        t = prob[pos_idx_c]**self.focal_loss_alpha * iou_scores ** (1-self.focal_loss_alpha)
-        t = torch.clamp(t, 0.01).detach()
+        # Computation classification loss
+        # src_logits: (b, num_queries, num_classes) = (2, 300, 80)
+        # target_classes_one_hot = (2, 300, 80)
+        target_classes_onehot = torch.zeros(
+            [src_logits.shape[0], src_logits.shape[1], src_logits.shape[2] + 1],
+            dtype=src_logits.dtype,
+            layout=src_logits.layout,
+            device=src_logits.device,
+        )
+        target_classes_onehot.scatter_(2, target_classes.unsqueeze(-1), 1)
+        target_classes_onehot = target_classes_onehot[:, :, :-1]
 
-        pos_weights[pos_idx_c] = t 
-        neg_weights[pos_idx_c] = (1 -t)
 
-        loss_class = -pos_weights * prob.log() - neg_weights * (1-prob).log()
+        # get GIoU-aware classification target: t = (GIoU + 1) / 2
+        # # get normed GIoU
+        
+        bs, n_query = outputs["pred_boxes"].shape[:2]
+        out_bbox = outputs["pred_boxes"].flatten(0, 1)                # tensor shape: [bs * n_query, 4]
+        tgt_bbox = torch.cat([t["boxes_xyxy"] for t in targets]) 
+        bbox_giou = generalized_box_iou(
+            out_bbox, tgt_bbox
+        )                                                             # tensor shape: [bs * n_query, gt number within a batch]
+        bbox_giou_normed = (bbox_giou + 1) / 2.0
+        bbox_giou_normed = bbox_giou_normed.reshape(bs, n_query, -1)  # tensor shape: [bs, n_query, gt number within a batch]
 
-        losses['loss_ce'] = loss_class.sum() / num_boxes
+        # # get matched gt indices: gt_indices
+        for indices_idx, element in enumerate(indices):
+            if indices_idx == 0:
+                gt_indices = element[1]
+            else:
+                curr_length = gt_indices.shape[0]
+                gt_indices = torch.cat((gt_indices, element[1] + curr_length), dim=0)
 
-        if log:
-            # TODO this should probably be a separate loss, not hacked in this one here
-            losses['class_error'] = 100 - accuracy(src_logits[idx], target_classes_o)[0]
+        # # get the supervision with a shape of [bs, n_query, num_classes]
+        class_supervision = torch.zeros(
+            [src_logits.shape[0], src_logits.shape[1]],
+            dtype=src_logits.dtype,
+            layout=src_logits.layout,
+            device=src_logits.device,
+        )
+        class_supervision[idx] = bbox_giou_normed[(idx[0], idx[1], gt_indices)] # idx[0]: batch idx; idx[1]: query idx; gt_indices: matched gt idx
+        class_supervision = class_supervision.detach()
+        target_classes_onehot_GIoU_aware = target_classes_onehot * class_supervision.unsqueeze(-1)
+
+        # sigmoid_focal_loss supervised by target_classes_onehot_GIoU_aware
+        src_prob = src_logits.sigmoid()
+
+        # # positive samples
+        bce_loss_pos = F.binary_cross_entropy_with_logits(src_logits, target_classes_onehot_GIoU_aware, reduction="none") * target_classes_onehot
+        p_t_pos = torch.abs(target_classes_onehot_GIoU_aware - src_prob * target_classes_onehot) ** self.focal_loss_gamma
+
+        # # negative samples
+        bce_loss_neg = F.binary_cross_entropy_with_logits(src_logits, target_classes_onehot, reduction="none") * (1 - target_classes_onehot)
+        p_t_neg = torch.abs(src_prob * (1 - target_classes_onehot)) ** self.focal_loss_gamma
+
+        # # total loss
+        loss = p_t_pos * bce_loss_pos + p_t_neg * bce_loss_neg
+
+        if self.focal_loss_alpha >= 0:
+            alpha_t = self.focal_loss_alpha * target_classes_onehot + (1 - self.focal_loss_alpha) * (1 - target_classes_onehot)
+            loss = alpha_t * loss
+
+        loss_class = loss.mean(1).sum() / num_boxes
+        loss_class = loss_class * src_logits.shape[1]
+     
+        losses = {"loss_ce": loss_class}
+        # import pdb;pdb.set_trace()
         return losses
-
 
     def loss_boxes(self, outputs, targets, indices, num_boxes):
         """Compute the losses related to the bounding boxes, the L1 regression loss and the GIoU loss
@@ -290,7 +339,6 @@ class AlignCriterion(nn.Module):
         losses['loss_bbox'] = loss_bbox.sum() / num_boxes
 
         return losses
-
 
     def _get_src_permutation_idx(self, indices):
         # permute predictions following indices
@@ -373,6 +421,7 @@ class AlignCriterion(nn.Module):
         if self.cfg.MODEL.MDR.IS_TRAIN:
             return losses, indices_without_aux         
         return losses
+
 
 
 class HungarianMatcher(nn.Module):
@@ -477,6 +526,7 @@ class HungarianMatcher(nn.Module):
         # 因此 数组(向量)长度 == 获得匹配的proposal数量 == num_gt
         # [tuple(row_inds:Tensor, col_inds:Tensor), ... ] lendth == bs
 
+
 #--------------- track loss --------------------------
 class TrackCriterion(nn.Module):
     def __init__(self, cfg, weight_dict, eos_coef, losses, use_focal):
@@ -539,7 +589,7 @@ class TrackCriterion(nn.Module):
         else:
             loss_ce = F.cross_entropy(src_logits.transpose(1, 2), target_classes, self.empty_weight)
             losses = {'loss_ce_track': loss_ce}
-
+ 
         return losses
 
     def loss_boxes(self, outputs, targets, indices, num_boxes):
@@ -552,7 +602,6 @@ class TrackCriterion(nn.Module):
         det_idx = indices[:, 0]
         tgt_idx = indices[:, 1]
         
-        # import pdb; pdb.set_trace()
         src_boxes = (outputs.pred_boxes.unsqueeze(0))[b_idx, det_idx]
         box_mask = tgt_idx != -1
         src_boxes = src_boxes[box_mask]
@@ -560,7 +609,7 @@ class TrackCriterion(nn.Module):
         target_boxes = targets['boxes_xyxy']
         target_boxes = target_boxes[tgt_idx[box_mask]]
         assert src_boxes.shape[0] == target_boxes.shape[0]
- 
+
         losses = {}
         loss_giou = 1 - torch.diag(box_ops.generalized_box_iou(src_boxes, target_boxes))
         losses['loss_giou_track'] = loss_giou.sum() / num_boxes
@@ -571,7 +620,7 @@ class TrackCriterion(nn.Module):
 
         loss_bbox = F.l1_loss(src_boxes_, target_boxes_, reduction='none')
         losses['loss_bbox_track'] = loss_bbox.sum() / num_boxes
-
+        
         return losses
             
     def get_loss(self, loss, outputs, targets, indices, num_boxes, **kwargs):

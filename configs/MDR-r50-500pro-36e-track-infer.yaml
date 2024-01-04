@@ -1,6 +1,6 @@
 _BASE_: "Base-MDR.yaml"
 MODEL:
-  WEIGHTS: "/data/zelinliu/MDR/output_mix20_track/model_0022499.pth" 
+  WEIGHTS: "/data/zelinliu/MDR/output_mix20_track/model_0092499.pth" 
   RESNETS:
     DEPTH: 50
     STRIDE_IN_1X1: False
@@ -10,12 +10,12 @@ MODEL:
     IS_TRAIN: True
     IS_FIX: True
     TRACKING: True
-    TRACKING_SCORE: 0.3
+    TRACKING_SCORE: 0.4
     BOX_RATIO: (0.5, 1.5)
     MIX_AREA: 100
     USE_FOCAL_R: True
     MAX_FRAME_DIST: 10  
-    NEW_TRACKING_THRES: 0.6
+    NEW_TRACKING_THRES: 0.8
 DATASETS:
   TEST:  ("my_val",)
 SOLVER:
