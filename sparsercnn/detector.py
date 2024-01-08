@@ -418,7 +418,7 @@ class MDR(nn.Module):
             matched_tids = track_instances.track_ids[matched_idx[:, 0][matched_mask]]
             new_tids = new_det_instances.track_ids
             midx, _ = self._track_association_with_ids(matched_tids, new_tids)
-            midx = torch.from_numpy(np.array(midx)).to(matched_tids.device).view(-1, 2)
+            midx = torch.from_numpy(np.array(midx)).to(matched_tids.device).view(-1, 2).long()
             new_det_instances = new_det_instances[midx[:, 0][~(midx[:, 1] != -1)]]
             # get valid track instance
             track_instances = track_instances[valid_mask]
