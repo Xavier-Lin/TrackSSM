@@ -685,7 +685,8 @@ class MDR(nn.Module):
         # regressive det to tracks from prev_frame.   i_track_instances, vaild_pre_gt_boxes, vaild_pair_mask
         track_scores, track_coords, track_emb = self.ssm_decoder(
             srcs,  
-            pre_tracks
+            pre_tracks,
+            images_whwh
         )
         
         track_scores = track_scores[0].squeeze(-1).sigmoid().cpu().numpy()
