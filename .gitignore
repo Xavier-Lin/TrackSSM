@@ -1,6 +1,7 @@
 .nfs*
 
 # compilation and distribution
+__pycache__/
 __pycache__
 _ext
 *.pyc
@@ -46,7 +47,7 @@ package-lock.json
 output
 instant_test_output
 inference_test_output
-output_*
+events.out.tfevents*
 
 
 *.png
