@@ -113,8 +113,8 @@ MODEL:
     PRIOR_PROB: 0.01
     SAMPLER_STEPS:
     - 100000
-    - 100000
-    - 100000
+    - 200000
+    - 300000
     TRACKING: false
     TRACKING_SCORE: 0.0
     TRACK_NUM_CLS: 1
@@ -313,7 +313,7 @@ MODEL:
     NAME: SemSegFPNHead
     NORM: GN
     NUM_CLASSES: 54
-  WEIGHTS: detectron2://ImageNetPretrained/torchvision/R-50.pkl
+  WEIGHTS: output_mix20_track_1/model_0069999.pth
 OUTPUT_DIR: output_mix20_track_1
 SEED: 40244023
 SOLVER:

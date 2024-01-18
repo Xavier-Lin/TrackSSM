@@ -305,6 +305,8 @@ if __name__ == "__main__":
     
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train_net.py  --num-gpus 4  --config-file configs/MDR-r50-500pro-36e-track.yaml
     
+    CUDA_VISIBLE_DEVICES=0,1,2  python train_net.py  --num-gpus 3  --resume --config-file configs/MDR-r50-500pro-36e-track.yaml  MODEL.WEIGHTS output_mix20_track_1/model_0064999.pth
+    
     CUDA_VISIBLE_DEVICES=0  python train_net.py  --num-gpus 1  --eval-only  --config-file configs/MDR-r50-500pro-36e-track-infer.yaml
     
     '''

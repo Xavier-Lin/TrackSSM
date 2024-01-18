@@ -12,7 +12,7 @@ MODEL:
     BOX_RATIO: (0.5, 1.5)
     USE_FOCAL_R: True
     MAX_FRAME_DIST: 10
-    SAMPLER_STEPS: (100000, 100000, 100000)  
+    SAMPLER_STEPS: (100000, 200000, 300000)  
 DATASETS:
   TEST:  ("my_val",)
 SOLVER:
@@ -23,8 +23,6 @@ SOLVER:
   CHECKPOINT_PERIOD: 5000
   AMP:
     ENABLED: False # 暂时不支持混合精度训练 以及 半精度推理
-  # WARMUP_FACTOR: 1.0
-  # WARMUP_ITERS: 0
 DATALOADER:
   NUM_WORKERS: 3
 TEST:
@@ -37,5 +35,5 @@ INPUT:
   CROP:
     ENABLED: False
   FORMAT: "RGB"
-OUTPUT_DIR: "output_mix20_track_2" 
+OUTPUT_DIR: "output_mix20_track_1" 
 

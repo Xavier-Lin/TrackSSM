@@ -46,6 +46,7 @@ package-lock.json
 output
 instant_test_output
 inference_test_output
+output_*
 
 
 *.png

@@ -200,6 +200,9 @@ class BYTETracker(object):
         # current detections
         bboxes = output_results.post_boxes.cpu().numpy()# x1y1x2y2 
         scores = output_results.scores.cpu().numpy()
+        # curr_res_instances.pred_embedding = curr_results_post.pred_embedding[conf_mask][nms_out_index] 
+        # curr_res_instances.inp_boxes = curr_boxes_inp[conf_mask][nms_out_index] # 获取真正的当前帧检测
+        # curr_res_instances.imgs_whwh  = images_whwh.repeat(len(curr_res_instances), 1)
 
         remain_inds = scores > self.track_thresh
         inds_low = scores > 0.1
