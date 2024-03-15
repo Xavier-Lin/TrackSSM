@@ -58,8 +58,8 @@ def add_MDR_config(cfg):
     
     # Train dataset
     cfg.DATASETS.TRAIN_DATA = CN()
-    cfg.DATASETS.TRAIN_DATA.IMG_PATH = '/data/zelinliu'
-    cfg.DATASETS.TRAIN_DATA.ANN_PATH = '/data/zelinliu/MDR/mix/mix20/annotations/train.json'
+    cfg.DATASETS.TRAIN_DATA.IMG_PATH = '/data/zelinliu/DanceTrack/dancetrack/train'
+    cfg.DATASETS.TRAIN_DATA.ANN_PATH = '/data/zelinliu/DanceTrack/dancetrack/annotations/train.json'
     cfg.DATASETS.TRAIN_DATA.SAMPLER_LEN = (2,3,4,5) # 采样的视频帧clip长度
     
     

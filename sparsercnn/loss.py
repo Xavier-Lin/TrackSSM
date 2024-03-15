@@ -537,6 +537,11 @@ class TrackCriterion(nn.Module):
         self.losses = losses
         self.num_classes  = 1
         self.use_focal = use_focal
+        if self.use_focal:
+            self.focal_loss_alpha = cfg.MODEL.MDR.ALPHA
+            self.focal_loss_gamma = cfg.MODEL.MDR.GAMMA
+        else:
+            raise ValueError("not surpport CELoss now")
     
     def initialize_for_single_clip(self): 
         self.num_samples = 0
@@ -554,42 +559,122 @@ class TrackCriterion(nn.Module):
         num_boxes = torch.clamp(num_boxes / get_world_size(), min=1).item()
         return num_boxes
  
-    def loss_labels(self, outputs, targets, indices, num_boxes, log=False):# 仅仅 针对 轨迹部分 进行分类置信度的训练
-        """Classification loss (NLL)
+    # def loss_labels(self, outputs, targets, indices, num_boxes, log=False):# 仅仅 针对 轨迹部分 进行分类置信度的训练
+    #     """Classification loss (NLL)
+    #     targets dicts must contain the key "labels" containing a tensor of dim [nb_target_boxes]
+    #     对于运动模块--仅仅只需要2分类的分类任务即可 对于实例的语义感知这些分类都在检测器中完成
+    #     """
+    #     # import pdb;pdb.set_trace()
+    #     b_idx = 0
+    #     det_idx = indices[:, 0]
+    #     tgt_idx = indices[:, 1]
+
+    #     src_logits = outputs.pred_logits.unsqueeze(0)
+    #     target_classes_o = (tgt_idx == -1).to(torch.int64)# 正样本为 0  负样本为 1
+    #     target_classes = torch.full(src_logits.shape[:2], self.num_classes,
+    #                                 dtype=torch.int64, device=src_logits.device)# 全是 1 -- bs num_tracks
+    #     target_classes[b_idx, det_idx] = target_classes_o
+
+    #     if self.use_focal:
+    #         src_logits = src_logits.flatten(0, 1)
+    #         # prepare one_hot target.
+    #         target_classes = target_classes.flatten(0, 1)
+    #         pos_inds = torch.nonzero(target_classes != self.num_classes, as_tuple=True)[0]# 挑选出 所有的 正样本的索引 
+    #         labels = torch.zeros_like(src_logits)
+    #         labels[pos_inds, target_classes[pos_inds]] = 1
+    #         # comp focal loss.       
+    #         class_loss = sigmoid_focal_loss_jit(
+    #             src_logits,
+    #             labels,
+    #             alpha=0.25,
+    #             gamma=2,
+    #             reduction="sum",
+    #         ) / num_boxes
+    #         losses = {'loss_ce_track': class_loss}
+    #     else:
+    #         loss_ce = F.cross_entropy(src_logits.transpose(1, 2), target_classes, self.empty_weight)
+    #         losses = {'loss_ce_track': loss_ce}
+ 
+    #     return losses
+    
+    def loss_labels(self, outputs, targets, indices, num_boxes, log=False):
+        """Classification loss (Binary focal loss)
         targets dicts must contain the key "labels" containing a tensor of dim [nb_target_boxes]
-        对于运动模块--仅仅只需要2分类的分类任务即可 对于实例的语义感知这些分类都在检测器中完成
         """
-        # import pdb;pdb.set_trace()
         b_idx = 0
         det_idx = indices[:, 0]
         tgt_idx = indices[:, 1]
-
+        
         src_logits = outputs.pred_logits.unsqueeze(0)
         target_classes_o = (tgt_idx == -1).to(torch.int64)# 正样本为 0  负样本为 1
         target_classes = torch.full(src_logits.shape[:2], self.num_classes,
                                     dtype=torch.int64, device=src_logits.device)# 全是 1 -- bs num_tracks
         target_classes[b_idx, det_idx] = target_classes_o
 
-        if self.use_focal:
-            src_logits = src_logits.flatten(0, 1)
-            # prepare one_hot target.
-            target_classes = target_classes.flatten(0, 1)
-            pos_inds = torch.nonzero(target_classes != self.num_classes, as_tuple=True)[0]# 挑选出 所有的 正样本的索引 
-            labels = torch.zeros_like(src_logits)
-            labels[pos_inds, target_classes[pos_inds]] = 1
-            # comp focal loss.       
-            class_loss = sigmoid_focal_loss_jit(
-                src_logits,
-                labels,
-                alpha=0.25,
-                gamma=2,
-                reduction="sum",
-            ) / num_boxes
-            losses = {'loss_ce_track': class_loss}
-        else:
-            loss_ce = F.cross_entropy(src_logits.transpose(1, 2), target_classes, self.empty_weight)
-            losses = {'loss_ce_track': loss_ce}
- 
+        # Computation classification loss
+        # src_logits: (b, num_queries, num_classes) = (2, 300, 80)
+        # target_classes_one_hot = (2, 300, 80)
+        target_classes_onehot = torch.zeros(
+            [src_logits.shape[0], src_logits.shape[1], src_logits.shape[2] + 1],
+            dtype=src_logits.dtype,
+            layout=src_logits.layout,
+            device=src_logits.device,
+        )
+        target_classes_onehot.scatter_(2, target_classes.unsqueeze(-1), 1)
+        target_classes_onehot = target_classes_onehot[:, :, :-1]
+
+        # get GIoU-aware classification target: t = (GIoU + 1) / 2
+        # # get normed GIoU
+        bs_pred_boxes = outputs.pred_boxes.unsqueeze(0)
+        bs, n_query = bs_pred_boxes.shape[:2]
+        out_bbox = bs_pred_boxes.flatten(0, 1)                # tensor shape: [bs * n_query, 4]
+        # tgt_bbox = torch.cat([t["boxes_xyxy"] for t in targets]) 
+        tgt_bbox = targets['boxes_xyxy']
+        bbox_giou = generalized_box_iou(
+            out_bbox, tgt_bbox
+        )                                                             # tensor shape: [bs * n_query, gt number within a batch]
+        bbox_giou_normed = (bbox_giou + 1) / 2.0
+        bbox_giou_normed = bbox_giou_normed.unsqueeze(0)  # tensor shape: [bs, n_query, gt number within a batch]
+        # # get matched gt indices: gt_indices
+        gt_indices = tgt_idx
+    
+        # # get the supervision with a shape of [bs, n_query, num_classes]
+        class_supervision = torch.zeros(
+            [src_logits.shape[0], src_logits.shape[1]],
+            dtype=src_logits.dtype,
+            layout=src_logits.layout,
+            device=src_logits.device,
+        )
+        
+        # class_supervision[idx] = bbox_giou_normed[(idx[0], idx[1], gt_indices)] # idx[0]: batch idx; idx[1]: query idx; gt_indices: matched gt idx
+        class_supervision[b_idx, det_idx[gt_indices != -1]] = bbox_giou_normed[(b_idx, det_idx[gt_indices != -1], gt_indices[gt_indices != -1])] # idx[0]: batch idx; idx[1]: query idx; gt_indices: matched gt idx
+        class_supervision = class_supervision.detach()
+        target_classes_onehot_GIoU_aware = target_classes_onehot * class_supervision.unsqueeze(-1)
+
+        # sigmoid_focal_loss supervised by target_classes_onehot_GIoU_aware
+        src_prob = src_logits.sigmoid()
+        # import pdb;pdb.set_trace()
+        # # positive samples
+        bce_loss_pos = F.binary_cross_entropy_with_logits(src_logits, target_classes_onehot_GIoU_aware, reduction="none") * target_classes_onehot
+        p_t_pos = torch.abs(target_classes_onehot_GIoU_aware - src_prob * target_classes_onehot) ** self.focal_loss_gamma
+
+        # # negative samples
+        bce_loss_neg = F.binary_cross_entropy_with_logits(src_logits, target_classes_onehot, reduction="none") * (1 - target_classes_onehot)
+        p_t_neg = torch.abs(src_prob * (1 - target_classes_onehot)) ** self.focal_loss_gamma
+
+        # # total loss
+        loss = p_t_pos * bce_loss_pos + p_t_neg * bce_loss_neg
+
+        if self.focal_loss_alpha >= 0:
+            alpha_t = self.focal_loss_alpha * target_classes_onehot + (1 - self.focal_loss_alpha) * (1 - target_classes_onehot)
+            loss = alpha_t * loss
+
+        # import pdb;pdb.set_trace()
+        loss_class = loss.flatten(0,1).sum() / num_boxes
+        loss_class = loss_class * src_logits.shape[1]
+     
+        losses = {"loss_ce": loss_class}
+        # import pdb;pdb.set_trace()
         return losses
 
     def loss_boxes(self, outputs, targets, indices, num_boxes):

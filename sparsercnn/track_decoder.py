@@ -1,7 +1,7 @@
 import copy
 import math
 from typing import Optional, List
-
+from einops import rearrange, repeat, einsum
 import torch
 from torch import nn
 import torch.nn.functional as F
@@ -131,18 +131,18 @@ class TrackSSM(nn.Module):
         normalized_all_obj_boxes = (all_objs_boxes / img_whwh_nopad[None])[None] * vaild_ratio_[:, None, :]
         assert (normalized_all_obj_boxes[0] - normalized_all_obj_boxes[-1]).sum() == 0
         all_pos_embeddding = gen_sineembed_for_position(normalized_all_obj_boxes[0][:, None, :])# n_query, bs, _ = pos_tensor.size()  sineembed_tensor = torch.zeros(n_query, bs, 256)
-        
-        return all_objs_boxes, query_feats, atten_mask, all_pos_embeddding
+
+        return tr_boxes, query_feats, atten_mask, all_pos_embeddding
        
     def forward(self, srcs: List,  track_instances: Instances, img_whwh: torch.Tensor):
         bs = srcs[0].shape[0]
         
         vaild_ratio = self.get_vaild_ratio(srcs, img_whwh[0])
-        group_boxes, group_query_feats, atten_mask, group_pos_embeddding = self._update_boxes_and_feats(
+        track_boxes, group_query_feats, atten_mask, group_pos_embeddding = self._update_boxes_and_feats(
             track_instances, vaild_ratio, img_whwh[0]
         )
         
-        bboxes = box_cxcywh_to_xyxy(group_boxes).unsqueeze(0)
+        bboxes = track_boxes.unsqueeze(0)
         proposal_features = group_query_feats[None].repeat(1, bs, 1)
         pos_embedding = self.ref_point_head(group_pos_embeddding).permute(1, 0, 2)
         
@@ -240,7 +240,8 @@ class MotionHead(nn.Module):
             self.class_logits = nn.Linear(d_model, 2)
         self.bboxes_delta = nn.Linear(d_model, 4)
         self.scale_clamp = _DEFAULT_SCALE_CLAMP
-        
+    
+    @torch.no_grad()
     def scale_bboxes(self, boxes: torch.Tensor):
         scaled_boxes  = box_xyxy_to_cxcywh(boxes)
         scaled_boxes[:, 2] *= 2
@@ -356,6 +357,21 @@ class MotionE(nn.Module):
         self.motion_1 = FFN(self.hidden_dim // 2, d_ffn, drop_ratio, self.hidden_dim // 2)
         # ffn_2
         self.motion_2 = FFN(self.hidden_dim, d_ffn, drop_ratio, self.hidden_dim)
+        
+        #-----------------------------------------------------------------------------------
+        # self.in_proj = nn.Linear(args.d_model, args.d_inner * 2, bias=args.bias)# d_model， 2 * e * d_model
+        # # d_model -- 每一个单词（对象）的embedding维度
+        # # d_inner -- expand * d_model -- 扩展因子 * 单个对象的embedding维度
+        
+        # # x_proj takes in `x` and outputs the input-specific Δ, B, C
+        # self.x_proj = nn.Linear(args.d_inner, args.dt_rank + args.d_state * 2, bias=False)# e * d_model ->  d_model // 16 + 1 + d_state*2
+        
+        # # dt_proj projects Δ from dt_rank to d_in
+        # self.dt_proj = nn.Linear(args.dt_rank, args.d_inner, bias=True)# d_model // 16 + 1 -> e * d_model
+
+        # A = repeat(torch.arange(1, args.d_state + 1), 'n -> d n', d=args.d_inner)# e * d_model, d_state 
+        # self.A_log = nn.Parameter(torch.log(A))# e * d_model, d_state 
+        # self.D = nn.Parameter(torch.ones(args.d_inner))# e * d_model, e * d_model 
 
     def forward(self, position_features, flow_features):
         '''
@@ -378,6 +394,92 @@ class MotionE(nn.Module):
 
         features = features.flatten(1) # N C
         return features
+    
+    def ssm(self, pos_emb, x):
+        """Runs the SSM. See:
+            - Algorithm 2 in Section 3.2 in the Mamba paper [1]
+            - run_SSM(A, B, C, u) in The Annotated S4 [2]
+
+        Args:
+            x: shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n...)
+    
+        Returns:
+            output: shape (b, l, d_in)
+
+        Official Implementation:
+            mamba_inner_ref(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L311
+            
+        """
+        (d_in, n) = self.A_log.shape
+
+        # Compute ∆ A B C D, the state space parameters.
+        #     A, D are input independent (see Mamba paper [1] Section 3.5.2 "Interpretation of A" for why A isn't selective)
+        #     ∆, B, C are input-dependent (this is a key difference between Mamba and the linear time invariant S4,
+        #                                  and is why Mamba is called **selective** state spaces)
+        
+        A = -torch.exp(self.A_log.float())  # shape (d_in, n)
+        D = self.D.float()
+
+        x_dbl = self.x_proj(x)  # (b, l, dt_rank + 2*n)
+        
+        (delta, B, C) = x_dbl.split(split_size=[self.args.dt_rank, n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
+        delta = F.softplus(self.dt_proj(delta))  # (b, l, d_in)
+        
+        y = self.selective_scan(x, delta, A, B, C, D)  # This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]
+        
+        return y
+
+    
+    def selective_scan(self, u, delta, A, B, C, D):
+        """Does selective scan algorithm. See:
+            - Section 2 State Space Models in the Mamba paper [1]
+            - Algorithm 2 in Section 3.2 in the Mamba paper [1]
+            - run_SSM(A, B, C, u) in The Annotated S4 [2]
+
+        This is the classic discrete state space formula:
+            x(t + 1) = Ax(t) + Bu(t)
+            y(t)     = Cx(t) + Du(t)
+        except B and C (and the step size delta, which is used for discretization) are dependent on the input x(t).
+    
+        Args:
+            u: shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n...)
+            delta: shape (b, l, d_in)
+            A: shape (d_in, n)
+            B: shape (b, l, n)
+            C: shape (b, l, n)
+            D: shape (d_in,)
+    
+        Returns:
+            output: shape (b, l, d_in)
+    
+        Official Implementation:
+            selective_scan_ref(), https://github.com/state-spaces/mamba/blob/main/mamba_ssm/ops/selective_scan_interface.py#L86
+            Note: I refactored some parts out of `selective_scan_ref` out, so the functionality doesn't match exactly.
+            
+        """
+        (b, l, d_in) = u.shape
+        n = A.shape[1]
+        
+        # Discretize continuous parameters (A, B)
+        # - A is discretized using zero-order hold (ZOH) discretization (see Section 2 Equation 4 in the Mamba paper [1])
+        # - B is discretized using a simplified Euler discretization instead of ZOH. From a discussion with authors:
+        #   "A is the more important term and the performance doesn't change much with the simplication on B"
+        deltaA = torch.exp(einsum(delta, A, 'b l d_in, d_in n -> b d_in l n'))
+        deltaB_u = einsum(delta, B, u, 'b l d_in, b l n, b l d_in -> b d_in l n')
+        
+        # Perform selective scan (see scan_SSM() in The Annotated S4 [2])
+        x = torch.zeros((b, d_in, n), device=deltaA.device)
+        ys = []    
+        for i in range(l):
+            x = deltaA[:, :, i] * x + deltaB_u[:, :, i]
+            y = einsum(x, C[:, i, :], 'b d_in n, b n -> b d_in')
+            ys.append(y)
+        y = torch.stack(ys, dim=1)  # shape (b, l, d_in)
+        
+        y = y + u * D
+    
+        return y
+
     
 class TAN(nn.Module):
     def __init__(self, d_model, ):

@@ -164,12 +164,18 @@ class MOTEvaluator:
             #         online_scores.append(t.score) #t[5]
         
             for t in online_targets:
-                if t['active'] == 0 and t['age'] > self.cfg.MODEL.MDR.MAX_FRAME_DIST:
+                if 'dance' in img_file_name:
+                    NOT_KEEP_LOST = True
+                else:
+                    NOT_KEEP_LOST = t['age'] > 10
+                if t['active'] == 0 and NOT_KEEP_LOST: 
                     continue
                 tlwh = self._xyxy2tlwh(t['bbox'])
                 tid = t['track_id']
                 vertical = tlwh[2] / tlwh[3] > 1.6
-                if tlwh[2] * tlwh[3] > self.cfg.MODEL.MDR.MIX_AREA and not vertical:
+                if 'dance' in img_file_name:
+                    vertical = False
+                if tlwh[2] * tlwh[3] > self.cfg.MODEL.MDR.MIX_AREA and not vertical: 
                     online_tlwhs.append(tlwh)
                     online_ids.append(tid)
                     online_scores.append(t['score'])

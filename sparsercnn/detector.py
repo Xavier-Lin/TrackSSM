@@ -132,7 +132,7 @@ class MDR(nn.Module):
     def reset(self):
         self.id_count = 0 
         self.tracks = []
-        self.sort_tracker = BYTETracker()
+        # self.sort_tracker = BYTETracker()
         
     def _generate_empty_tracks(self):# 初始化目标实例的属性 一个目标对应一个查询 对应一个 目标id。对应一个 目标索引。对应一个 目标分数。对应一个预测的目标框。对应一个预测的目标类别，对应一个轨迹实例或者是一个检测实例 
         track_instances = Instances((1, 1))
@@ -255,37 +255,32 @@ class MDR(nn.Module):
                     det_loss_clip.append(self.weighted_det_loss(frame_res['det_loss']))
 
                 if is_last :
-                    # import pdb;pdb.set_trace()
-                    if not self.training:
-                        outputs['track_instances'] = track_instances
-                        return outputs
-                    else:
-                        # process det loss
-                        if len(det_loss_clip) != 0:
-                            det_loss_dict = det_loss_clip[0]
-                            for det_loss_img in det_loss_clip[1:]:
-                                for k, _ in self.criterion.weight_dict.items():
-                                    det_loss_dict[k] += det_loss_img[k]
-                            if len(det_loss_clip) == 1:
-                                N = 1
-                            else:
-                                N = sampler_len
+                    # process det loss
+                    if len(det_loss_clip) != 0:
+                        det_loss_dict = det_loss_clip[0]
+                        for det_loss_img in det_loss_clip[1:]:
                             for k, _ in self.criterion.weight_dict.items():
-                                det_loss_dict[k] /= N
+                                det_loss_dict[k] += det_loss_img[k]
+                        if len(det_loss_clip) == 1:
+                            N = 1
                         else:
-                            det_loss_dict = {}
+                            N = sampler_len
+                        for k, _ in self.criterion.weight_dict.items():
+                            det_loss_dict[k] /= N
+                    else:
+                        det_loss_dict = {}
 
-                        outputs['losses_dict'] = self.track_criterion.losses_dict
-                        track_loss_dict = self.track_criterion(outputs)
-                        # print("iter {} after model".format(cnt-1))
-                        # import pdb;pdb.set_trace()
-                        weight_dict = self.track_criterion.weight_dict
-                        for k in track_loss_dict.keys():
-                            if k in weight_dict:
-                                track_loss_dict[k] *= weight_dict[k] 
-                        # import pdb;pdb.set_trace()
-                        tol_losses = {**det_loss_dict, **track_loss_dict}    
-                        return tol_losses
+                    outputs['losses_dict'] = self.track_criterion.losses_dict
+                    track_loss_dict = self.track_criterion(outputs)
+                    # print("iter {} after model".format(cnt-1))
+                    # import pdb;pdb.set_trace()
+                    weight_dict = self.track_criterion.weight_dict
+                    for k in track_loss_dict.keys():
+                        if k in weight_dict:
+                            track_loss_dict[k] *= weight_dict[k] 
+                    # import pdb;pdb.set_trace()
+                    tol_losses = {**det_loss_dict, **track_loss_dict}    
+                    return tol_losses
         else:
             # input size with no_pad -- whwh   images are paded batch of input images
             if isinstance(images, (list, torch.Tensor)):
@@ -400,39 +395,39 @@ class MDR(nn.Module):
         num_dets = len(det_res['hs'][0])
         new_det_instances.imgs_whwh = img_whwh.repeat(num_dets, 1)  
         
-        if self.training:
-            # import pdb;pdb.set_trace()
-            # the track id will be assigned by the mather.
-            det_loss_dict, indices_without_aux, matched_idx = self.match_for_single_frame(track_instances, det_res, curr_targets)
-            self.track_criterion.calc_loss_per_frame(track_instances, curr_targets, matched_idx)
-            new_det_instances = new_det_instances[indices_without_aux[0][0]]
-            # compute pairwise iou
-            gt_boxes_xyxy = Boxes(curr_targets['boxes_xyxy'][indices_without_aux[0][1]])
-            pred_boxes_xyxy =  Boxes(new_det_instances.pred_boxes)
-            new_det_instances.iou = matched_boxlist_iou(pred_boxes_xyxy, gt_boxes_xyxy)
-            new_det_instances.track_ids = curr_targets['track_ids'][indices_without_aux[0][1]]
-            
-            # update track instance iou  更新 获得匹配 的 轨迹对象 和 fp 以及 检测对象的 iou 信息
-            matched_mask = matched_idx[:, 1] != -1
-            valid_mask = track_instances.track_ids >= 0
-            pred_boxes_xyxy = Boxes(track_instances.pred_boxes[matched_idx[:, 0][matched_mask]])
-            gt_boxes_xyxy = Boxes(curr_targets['boxes_xyxy'][matched_idx[:, 1][matched_mask]])
-            track_instances.iou[matched_idx[:, 0][matched_mask]] = matched_boxlist_iou(pred_boxes_xyxy, gt_boxes_xyxy)
-            # get new det instance
-            matched_tids = track_instances.track_ids[matched_idx[:, 0][matched_mask]]
-            new_tids = new_det_instances.track_ids
-            midx, _ = self._track_association_with_ids(matched_tids, new_tids)
-            midx = torch.from_numpy(np.array(midx)).to(matched_tids.device).view(-1, 2).long()
-            new_det_instances = new_det_instances[midx[:, 0][~(midx[:, 1] != -1)]]
-            # get valid track instance
-            track_instances = track_instances[valid_mask]
-            # all instance for the next step
-            track_instances = Instances.cat([track_instances, new_det_instances])
-            frame_res['det_loss'] = det_loss_dict
-        else:
-            # each track will be assigned an unique global id by the track base.
-            # import pdb;pdb.set_trace()
-            track_instances = Instances.cat([new_det_instances, track_instances])
+        # if self.training:
+        # import pdb;pdb.set_trace()
+        # the track id will be assigned by the mather.
+        det_loss_dict, indices_without_aux, matched_idx = self.match_for_single_frame(track_instances, det_res, curr_targets)
+        self.track_criterion.calc_loss_per_frame(track_instances, curr_targets, matched_idx)
+        new_det_instances = new_det_instances[indices_without_aux[0][0]]
+        # compute pairwise iou
+        gt_boxes_xyxy = Boxes(curr_targets['boxes_xyxy'][indices_without_aux[0][1]])
+        pred_boxes_xyxy =  Boxes(new_det_instances.pred_boxes)
+        new_det_instances.iou = matched_boxlist_iou(pred_boxes_xyxy, gt_boxes_xyxy)
+        new_det_instances.track_ids = curr_targets['track_ids'][indices_without_aux[0][1]]
+        
+        # update track instance iou  更新 获得匹配 的 轨迹对象 和 fp 以及 检测对象的 iou 信息
+        matched_mask = matched_idx[:, 1] != -1
+        valid_mask = track_instances.track_ids >= 0
+        pred_boxes_xyxy = Boxes(track_instances.pred_boxes[matched_idx[:, 0][matched_mask]])
+        gt_boxes_xyxy = Boxes(curr_targets['boxes_xyxy'][matched_idx[:, 1][matched_mask]])
+        track_instances.iou[matched_idx[:, 0][matched_mask]] = matched_boxlist_iou(pred_boxes_xyxy, gt_boxes_xyxy)
+        # get new det instance
+        matched_tids = track_instances.track_ids[matched_idx[:, 0][matched_mask]]
+        new_tids = new_det_instances.track_ids
+        midx, _ = self._track_association_with_ids(matched_tids, new_tids)
+        midx = torch.from_numpy(np.array(midx)).to(matched_tids.device).view(-1, 2).long()
+        new_det_instances = new_det_instances[midx[:, 0][~(midx[:, 1] != -1)]]
+        # get valid track instance
+        track_instances = track_instances[valid_mask]
+        # all instance for the next step
+        track_instances = Instances.cat([track_instances, new_det_instances])
+        frame_res['det_loss'] = det_loss_dict
+        # else:
+        #     # each track will be assigned an unique global id by the track base.
+        #     # import pdb;pdb.set_trace()
+        #     track_instances = Instances.cat([new_det_instances, track_instances])
 
         if not is_last:
             frame_res['track_instances'] = track_instances
@@ -593,16 +588,21 @@ class MDR(nn.Module):
 
     def init_track(self, results: List, fpn_feat: List, input_per_image):
         post_output, nms_out_index, conf_mask = self.postprocess(
-            results[0].pred_boxes.tensor, results[0].pred_classes, results[0].scores, 1, self.cfg.MODEL.MDR.NEW_TRACKING_THRES)
+            results[0].pred_boxes.tensor, results[0].pred_classes, results[0].scores, 1)
 
-        curr_pred_feats = results[0].pred_embedding[conf_mask][nms_out_index].cpu().numpy()
-        inp_boxes = results[1][conf_mask][nms_out_index].cpu().numpy()
-        post_output = post_output.cpu().numpy()
+        curr_pred_feats = results[0].pred_embedding[conf_mask][nms_out_index] 
+        inp_boxes = results[1][conf_mask][nms_out_index]
+        
+        dt_mask = post_output[:, 4] > self.cfg.MODEL.MDR.NEW_TRACKING_THRES
+        curr_pred_feats = curr_pred_feats[dt_mask].cpu().numpy()
+        inp_boxes = inp_boxes[dt_mask].cpu().numpy()
+        post_output = post_output[dt_mask].cpu().numpy()
+
         ret = []
         for i, (det, inp_box) in enumerate(zip(post_output, inp_boxes)):
             item = {}
-            item['bbox'] = det[:4] # xyxy
-            item['score'] = det[4] # score
+            item['bbox'] =  det[:4]
+            item['score'] =   det[4]
             item['bbox_inp'] = inp_box # xyxy inp
             item['active'] = 1
             item['age'] = 1
@@ -634,7 +634,6 @@ class MDR(nn.Module):
             curr_results_post.pred_classes, 
             curr_results_post.scores, 
             num_classes = 1, 
-            conf_thre  =self.cfg.MODEL.MDR.TRACKING_SCORE
         )
         curr_res_instances = Instances((1,1))
         curr_res_instances.pred_embedding = curr_results_post.pred_embedding[conf_mask][nms_out_index] 
@@ -642,6 +641,7 @@ class MDR(nn.Module):
         curr_res_instances.post_boxes = post_output[:, :4]
         curr_res_instances.scores = post_output[:, 4]
         curr_res_instances.imgs_whwh  = images_whwh.repeat(len(curr_res_instances), 1)
+        curr_res_instances = curr_res_instances[curr_res_instances.scores > self.cfg.MODEL.MDR.TRACKING_SCORE]
         return curr_res_instances
     
     def get_coord_scale(self, inp_per_img):
@@ -762,7 +762,8 @@ class MDR(nn.Module):
             track['bbox']  = det['bbox']
             track['bbox_inp'] = track['bbox'] * scale 
             track['score'] = det['score']
-            track['pred_feats'] = det['pred_feats']
+            # track['pred_feats'] = det['pred_feats']
+            track['pred_feats'] = track_emb[i]
             ret.append(track)
 
         # import pdb;pdb.set_trace()
@@ -780,20 +781,15 @@ class MDR(nn.Module):
                 
         for i in unmatched_tracks:# 对于丢失的轨迹 其 embedding不会发生更新 因此 它的embedding最多仅仅只能管10帧长度 这是由训练的方式决定的 ，只有被关联到 embedding的信息才会更新
             track = self.tracks[:-1][track_idxes[i]]
-            if track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST * 3 :
-                # if track['active'] > 0 or track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST:
+            if track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST: # if mot20 -- x3
                     track['age'] += 1
                     track['active'] = 0
                     pre_box = track['bbox']
-                    new_detla = self.tracklets_smooth(track['detla_deque'])
-                    smooth_box = pre_box + new_detla
-                    filter_box = smooth_box * (1 - track_scores[i]) + remain_regress_boxes[i] * track_scores[i]
-                    # new_detla = remain_regress_boxes[i] - pre_box
-                   
-                    track['bbox'] = filter_box
+                    new_detla = remain_regress_boxes[i] - pre_box
+                    track['bbox'] = remain_regress_boxes[i]
                     track['bbox_inp'] = track_coords_cpu[i]
                     track['pred_feats'] = track_emb[i]
-                    track['detla_deque'].append(filter_box - pre_box)
+                    track['detla_deque'].append(new_detla)
                     ret.append(track)
             # import pdb;pdb.set_trace()
             # img = cv2.imread(inp_per_img['file_name']).copy()
@@ -808,7 +804,7 @@ class MDR(nn.Module):
         # self.pre_img = cv2.imread(inp_per_img['file_name'])
         return ret[:-1]
     
-    def postprocess(self, pred_boxes, pred_cls, pred_scores, num_classes, conf_thre=0.01, nms_thre=0.65):
+    def postprocess(self, pred_boxes, pred_cls, pred_scores, num_classes, conf_thre=0.01, nms_thre=0.65):# if mot20 -- 0.65
         predictions = torch.cat([pred_boxes, pred_scores.unsqueeze(-1), pred_cls.unsqueeze(-1)], 1)
         predictions = predictions.unsqueeze(0)
         output = [None for _ in range(len(predictions))]
@@ -835,7 +831,10 @@ class MDR(nn.Module):
                 output[i] = detections
             else:
                 output[i] = torch.cat((output[i], detections))
-
+        # import pdb;pdb.set_trace()
+        if output[0] is None:
+            nms_out_index = torch.tensor([], device = pred_boxes.device, dtype=torch.int64).reshape(0)
+            conf_mask = torch.tensor([], device = pred_boxes.device, dtype=torch.bool).reshape(0)
         return output[0], nms_out_index, conf_mask
     
     def detector_postprocess(

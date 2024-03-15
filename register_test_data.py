@@ -169,9 +169,9 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
 
 
 # VAL_JSON="/data/zelinliu/MOT20/annotations/val_half.json"
-VAL_JSON = '/data/zelinliu/MOT20/annotations/train.json'
-VAL_PATH="/data/zelinliu/MOT20/train"
+VAL_JSON = '/data/zelinliu/DanceTrack/dancetrack/annotations/val.json'
+VAL_PATH="/data/zelinliu/DanceTrack/dancetrack/val"
 DatasetCatalog.register("my_val", lambda: load_coco_json(VAL_JSON, VAL_PATH, "my_val", ["id"]))
-MetadataCatalog.get("my_val").set(thing_classes=[ "pedestrian"], # pedestrian
+MetadataCatalog.get("my_val").set(thing_classes=[ "dancer"], # pedestrian
                                                 json_file=VAL_JSON,
                                                 image_root=VAL_PATH)

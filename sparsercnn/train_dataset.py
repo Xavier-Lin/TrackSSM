@@ -29,6 +29,7 @@ class MOTtrainset(data.Dataset):
         lg.info('==> Initializing {} data from {}, \n images from {} ...'.format("train", ann_json_path, self.img_dir))
         self.coco = coco.COCO(ann_json_path)
         self.images = self.coco.getImgIds()
+        lg.info('Loaded initial dataset {} samples'.format(len(self.images)))
         cat_ids = sorted(self.coco.getCatIds())
         if min(cat_ids) > 0:
             lg.warning("""
@@ -64,7 +65,7 @@ class MOTtrainset(data.Dataset):
         self.images = self.sub_imgset(self.images, unsample_imgid)
         self.num_samples = len(self.images)
         assert tol_samples == self.num_samples
-        lg.info('Loaded Custom dataset {} samples'.format(self.num_samples))
+        lg.info('Loaded custom dataset {} samples'.format(self.num_samples))
         self.trans_gen =self.build_transform_gen()
     
     def __len__(self):
