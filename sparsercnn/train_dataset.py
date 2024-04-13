@@ -23,8 +23,8 @@ class MOTtrainset(data.Dataset):
     def __init__(self, opt):
         super(MOTtrainset, self).__init__()
         self.opt = opt
-        self.img_dir = opt.DATASETS.TRAIN_DATA.IMG_PATH
-        ann_json_path = opt.DATASETS.TRAIN_DATA.ANN_PATH
+        self.img_dir = opt.DATASETS.TRAIN_DATA_IMG_PATH
+        ann_json_path = opt.DATASETS.TRAIN_DATA_ANN_PATH
     
         lg.info('==> Initializing {} data from {}, \n images from {} ...'.format("train", ann_json_path, self.img_dir))
         self.coco = coco.COCO(ann_json_path)
@@ -38,7 +38,7 @@ class MOTtrainset(data.Dataset):
         self.id_map = {v: i for i, v in enumerate(cat_ids)}
         
         # init sampler_len
-        self.sampler_len_list = opt.DATASETS.TRAIN_DATA.SAMPLER_LEN # 2 3 4 5
+        self.sampler_len_list = opt.DATASETS.TRAIN_DATA_SAMPLER_LEN # 2 3 4 5
         self.sample_steps = opt.MODEL.MDR.SAMPLER_STEPS# 100 200 300
         assert len(self.sampler_len_list) == len(self.sample_steps) + 1
         

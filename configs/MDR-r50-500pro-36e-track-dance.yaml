@@ -12,19 +12,25 @@ MODEL:
     BOX_RATIO: (0.5, 1.5)
     USE_FOCAL_R: True
     MAX_FRAME_DIST: 10
-    SAMPLER_STEPS: (62094, 123588, 184482)
+    SAMPLER_STEPS: (51745, 102490, 152235)
+    D_STATE: 256
+    EXPAND: 1
 DATASETS:
   TEST:  ("my_val",)
+  TRAIN_DATA_IMG_PATH: "/data/zelinliu/DanceTrack/dancetrack/train"
+  TRAIN_DATA_ANN_PATH: "/data/zelinliu/DanceTrack/dancetrack/annotations/train.json"
+  TRAIN_DATA_SAMPLER_LEN: (2,4,6,8)
+
 SOLVER:
-  IMS_PER_BATCH: 1
+  IMS_PER_BATCH: 4
   BASE_LR: 0.0001
   STEPS: (122388, )
-  MAX_ITER: 244776 
+  MAX_ITER: 200980 
   CHECKPOINT_PERIOD: 5000
   AMP:
     ENABLED: False # 暂时不支持混合精度训练 以及 半精度推理
 DATALOADER:
-  NUM_WORKERS: 1
+  NUM_WORKERS: 4
 TEST:
   EVAL_PERIOD: 5000
 INPUT:

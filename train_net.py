@@ -126,6 +126,9 @@ class Trainer(DefaultTrainer):
                     v.requires_grad = False
          
         for key, value in model.named_parameters(recurse=True):
+            # if 'motion' in key:
+            #     import pdb;pdb.set_trace()
+            #     lzl = 0
             if not value.requires_grad:
                 continue
             # Avoid duplicating parameters
@@ -134,7 +137,7 @@ class Trainer(DefaultTrainer):
             memo.add(value)
             lr = cfg.SOLVER.BASE_LR
             weight_decay = cfg.SOLVER.WEIGHT_DECAY
-            if "backbone" in key or 'head' in key or 'init_proposal_features' in key or 'init_proposal_boxes' in key :
+            if "backbone" in key or '.head' in key or 'init_proposal_features' in key or 'init_proposal_boxes' in key :
                 lr = lr * cfg.SOLVER.BACKBONE_MULTIPLIER
 
             params += [{"params": [value], "lr": lr, "weight_decay": weight_decay}]

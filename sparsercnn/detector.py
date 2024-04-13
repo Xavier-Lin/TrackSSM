@@ -95,7 +95,7 @@ class MDR(nn.Module):
             weight_dict.update(aux_weight_dict)
         if self.cfg.MODEL.MDR.IS_TRAIN:
             weight_dict_track = {}
-            for i in range(max(cfg.DATASETS.TRAIN_DATA.SAMPLER_LEN)): # 对于每一个视频帧 都要构建一个对于 检测器 最后一个stage 的损失 
+            for i in range(max(cfg.DATASETS.TRAIN_DATA_SAMPLER_LEN)): # 对于每一个视频帧 都要构建一个对于 检测器 最后一个stage 的损失 
                 weight_dict_track.update({"frame_{}_loss_ce_track".format(i): class_weight,
                                     'frame_{}_loss_bbox_track'.format(i): l1_weight,
                                     'frame_{}_loss_giou_track'.format(i): giou_weight,
@@ -146,6 +146,11 @@ class MDR(nn.Module):
         track_instances.scores = torch.zeros((len(track_instances),), dtype=torch.float, device=device)# 初始化 最后一个stage 轨迹查询/检测查询 预测的置信度分数 
         track_instances.pred_boxes = torch.zeros((len(track_instances), 4), dtype=torch.float, device=device)# 初始化 的最后一个stage 轨迹/检测 查询 在 未填充尺寸上 的边界框预测
         track_instances.pred_logits = torch.zeros((len(track_instances), self.num_classes), dtype=torch.float, device=device)# 初始化 最后一个stage 轨迹/检测 查询的类别预测
+        track_instances.hidden_state = torch.zeros(
+            (
+            num_queries, int(self.cfg.MODEL.MDR.EXPAND * self.cfg.MODEL.MDR.HIDDEN_DIM), self.cfg.MODEL.MDR.D_STATE
+            ), device=device
+        )
 
         # mem_bank_len = self.mem_bank_len # 
         # track_instances.mem_bank = torch.zeros((len(track_instances), mem_bank_len, dim // 2), dtype=torch.float32, device=device)
@@ -167,9 +172,10 @@ class MDR(nn.Module):
         return out
     
     def _forward_track_decoder(self, features, track_instances, img_whwh):
-        outputs_class, outputs_coord, outputs_embeddings= self.ssm_decoder(features,  track_instances, img_whwh[0])
+        outputs_class, outputs_coord, outputs_embeddings, hidden_emb= self.ssm_decoder(features,  track_instances, img_whwh[0])
         out = {'pred_logits': outputs_class, 'pred_boxes': outputs_coord}
-        out['hs'] = outputs_embeddings #  hidden_state_embedding
+        out['hs'] = outputs_embeddings #  
+        out['he'] = hidden_emb
         return out
     
     def _forward_single_image(self, frame, pre_fpn_feats, imgs_whwh, track_instances: Instances, video_id: int):
@@ -385,6 +391,7 @@ class MDR(nn.Module):
         track_instances.pred_logits = track_res['pred_logits'][0] # 对于检测和轨迹查询 均更新其在当前帧的预测目标的类别向量 
         track_instances.pred_boxes = track_res['pred_boxes'][0] # 对于检测和轨迹查询 均更新其在当前帧的归一化bbox坐标
         track_instances.pred_embedding = track_res['hs'][0]  # 对于检测和轨迹查询 均更新其在当前帧的查询特征结果 output
+        track_instances.hidden_state = track_res['he']
         
         # add new dets information
         new_det_instances = self._generate_empty_tracks()
@@ -609,10 +616,6 @@ class MDR(nn.Module):
             self.id_count += 1
             item['track_id'] = self.id_count
             item['pred_feats'] = curr_pred_feats[i]
-            item['detla_deque'] = deque([], maxlen = self.cfg.MODEL.MDR.MAX_FRAME_DIST)
-            wh = det[2: 4] - det[ :2]
-            whwh = np.concatenate([wh, wh],axis = -1)
-            item['detla_deque'].append((1 / 100000) * whwh) # detla_x1 detla_y1 detla_x2 detla_y2
             ret.append(item) 
             
         ret.append(fpn_feat)
@@ -654,7 +657,6 @@ class MDR(nn.Module):
         device = fpn_feats[0].device
         dtype = fpn_feats[0].dtype
         scale = self.get_coord_scale(inp_per_img)
-        
         det_instances = self.prepare_dets(curr_results, images_whwh)
     
         # import pdb;pdb.set_trace()
@@ -713,7 +715,7 @@ class MDR(nn.Module):
         # import pdb;pdb.set_trace()
         # img = cv2.imread(inp_per_img['file_name']).copy()
         # for i, b in enumerate(remain_regress_boxes):
-        #     if i < N:
+        #     if track_scores[i] > 0.7:
         #         cv2.rectangle(img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0,0,255), 2)
         #     else:
         #         cv2.rectangle(img, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (255,0,0), 2)
@@ -744,7 +746,6 @@ class MDR(nn.Module):
             item['bbox_inp'] = inp_box
             item['score'] = score
             item['pred_feats'] = curr_res_pred_feats[i]
-            item['detla_deque'] = deque([], maxlen = self.cfg.MODEL.MDR.MAX_FRAME_DIST)
             curr_dets.append(item)
         
         
@@ -756,11 +757,9 @@ class MDR(nn.Module):
             det = curr_dets[m[1]]
             track['age'] = 1
             track['active'] = 1
-            pre_bbox = track['bbox'] 
-            detla_xy = det['bbox'] - pre_bbox
-            track['detla_deque'].append(detla_xy)
             track['bbox']  = det['bbox']
-            track['bbox_inp'] = track['bbox'] * scale 
+            # track['bbox']  = remain_regress_boxes[i]
+            track['bbox_inp'] = track['bbox'] * scale
             track['score'] = det['score']
             # track['pred_feats'] = det['pred_feats']
             track['pred_feats'] = track_emb[i]
@@ -774,9 +773,6 @@ class MDR(nn.Module):
                 track['track_id'] = self.id_count
                 track['age'] = 1
                 track['active'] =  1
-                wh = track['bbox'][2:4] - track['bbox'][:2]
-                whwh = np.concatenate([wh, wh],axis = -1)
-                track['detla_deque'].append( (1 / 100000) * whwh )
                 ret.append(track)
                 
         for i in unmatched_tracks:# 对于丢失的轨迹 其 embedding不会发生更新 因此 它的embedding最多仅仅只能管10帧长度 这是由训练的方式决定的 ，只有被关联到 embedding的信息才会更新
@@ -784,12 +780,9 @@ class MDR(nn.Module):
             if track['age'] < self.cfg.MODEL.MDR.MAX_FRAME_DIST: # if mot20 -- x3
                     track['age'] += 1
                     track['active'] = 0
-                    pre_box = track['bbox']
-                    new_detla = remain_regress_boxes[i] - pre_box
                     track['bbox'] = remain_regress_boxes[i]
                     track['bbox_inp'] = track_coords_cpu[i]
                     track['pred_feats'] = track_emb[i]
-                    track['detla_deque'].append(new_detla)
                     ret.append(track)
             # import pdb;pdb.set_trace()
             # img = cv2.imread(inp_per_img['file_name']).copy()

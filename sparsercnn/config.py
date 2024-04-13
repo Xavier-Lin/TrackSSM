@@ -55,12 +55,14 @@ def add_MDR_config(cfg):
     cfg.MODEL.MDR.TRACK_NUM_CLS = 1
     cfg.MODEL.MDR.MAX_FRAME_DIST = 3
     cfg.MODEL.MDR.SAMPLER_STEPS = (1, )# 
+    cfg.MODEL.MDR.D_STATE = 256 # 16
+    cfg.MODEL.MDR.EXPAND = 1 # 2
+    
     
     # Train dataset
-    cfg.DATASETS.TRAIN_DATA = CN()
-    cfg.DATASETS.TRAIN_DATA.IMG_PATH = '/data/zelinliu/DanceTrack/dancetrack/train'
-    cfg.DATASETS.TRAIN_DATA.ANN_PATH = '/data/zelinliu/DanceTrack/dancetrack/annotations/train.json'
-    cfg.DATASETS.TRAIN_DATA.SAMPLER_LEN = (2,3,4,5) # 采样的视频帧clip长度
+    cfg.DATASETS.TRAIN_DATA_IMG_PATH = ''
+    cfg.DATASETS.TRAIN_DATA_ANN_PATH = ''
+    cfg.DATASETS.TRAIN_DATA_SAMPLER_LEN = (1,) # 采样的视频帧clip长度
     
     
     # Test dataset name

@@ -672,8 +672,7 @@ class TrackCriterion(nn.Module):
         # import pdb;pdb.set_trace()
         loss_class = loss.flatten(0,1).sum() / num_boxes
         loss_class = loss_class * src_logits.shape[1]
-     
-        losses = {"loss_ce": loss_class}
+        losses = {'loss_ce_track': loss_class}
         # import pdb;pdb.set_trace()
         return losses
 

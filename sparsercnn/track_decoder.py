@@ -8,6 +8,7 @@ import torch.nn.functional as F
 
 from detectron2.modeling.poolers import ROIPooler, cat
 from detectron2.structures import Boxes, Instances
+import torch.nn.functional
 from .util.box_ops import box_cxcywh_to_xyxy, box_xyxy_to_cxcywh, matched_boxlist_iou
 _DEFAULT_SCALE_CLAMP = math.log(100000.0 / 16)
 
@@ -119,12 +120,7 @@ class TrackSSM(nn.Module):
         
         # get corrsponding query feature
         query_feats = tr_instances.pred_embedding.clone()
-        
-        # get atten mask
-        # if self.training:
-        #     atten_mask = self.get_atten_mask(0, len(vaild_pre_gt_boxes), num_trks, all_objs_boxes.device)
-        # else:
-        atten_mask = None
+        hidden_emb = tr_instances.hidden_state.clone()
         
         # get postion embedding
         vaild_ratio_ = torch.cat([vaild_ratio, vaild_ratio], dim=1)
@@ -132,13 +128,13 @@ class TrackSSM(nn.Module):
         assert (normalized_all_obj_boxes[0] - normalized_all_obj_boxes[-1]).sum() == 0
         all_pos_embeddding = gen_sineembed_for_position(normalized_all_obj_boxes[0][:, None, :])# n_query, bs, _ = pos_tensor.size()  sineembed_tensor = torch.zeros(n_query, bs, 256)
 
-        return tr_boxes, query_feats, atten_mask, all_pos_embeddding
+        return tr_boxes, query_feats, all_pos_embeddding, hidden_emb
        
     def forward(self, srcs: List,  track_instances: Instances, img_whwh: torch.Tensor):
         bs = srcs[0].shape[0]
-        
+        # import pdb;pdb.set_trace()
         vaild_ratio = self.get_vaild_ratio(srcs, img_whwh[0])
-        track_boxes, group_query_feats, atten_mask, group_pos_embeddding = self._update_boxes_and_feats(
+        track_boxes, group_query_feats, group_pos_embeddding, hidden_state_embbedding = self._update_boxes_and_feats(
             track_instances, vaild_ratio, img_whwh[0]
         )
         
@@ -148,9 +144,9 @@ class TrackSSM(nn.Module):
         
         vaild_ratio_whwh = torch.cat([vaild_ratio, vaild_ratio], dim =1)
         assert (vaild_ratio_whwh[0] - vaild_ratio_whwh[-1]).sum() == 0
-        class_logits, pred_bboxes, hidden_state_embbedding = self.motion_head(srcs, bboxes, proposal_features, self.box_pooler, pos_embedding, atten_mask)
+        class_logits, pred_bboxes, time_conv_emb, hidden_state_embbedding = self.motion_head(srcs, bboxes, proposal_features, self.box_pooler, pos_embedding, hidden_state_embbedding)
 
-        return class_logits, pred_bboxes, hidden_state_embbedding
+        return class_logits, pred_bboxes, time_conv_emb, hidden_state_embbedding
     
 
 class DynamicConv(nn.Module):
@@ -287,7 +283,7 @@ class MotionHead(nn.Module):
 
         return pred_boxes
 
-    def forward(self, features, bboxes, embedding_features, pooler, position_embedding, atten_mask):
+    def forward(self, features, bboxes, embedding_features, pooler, position_embedding, hidden_em = None):
         """
         features 网络的特征图 features = [ p2.feat,  p3.feat,   p4.feat,    p5.feat] 
                 通道统一256 每个元素的大小为 (bz C h w)        C=256
@@ -299,7 +295,7 @@ class MotionHead(nn.Module):
         N, nr_boxes = bboxes.shape[:2]# bz N
         # use self attention entrance embedding 
         q = k = embedding_features = embedding_features.view(N, nr_boxes, self.d_model)
-        pro_features2 = self.self_attn(q.transpose(0, 1), k.transpose(0, 1), embedding_features.transpose(0, 1), attn_mask = atten_mask)[0].transpose(0, 1)
+        pro_features2 = self.self_attn(q.transpose(0, 1), k.transpose(0, 1), embedding_features.transpose(0, 1))[0].transpose(0, 1)
         embedding_features = embedding_features + self.dropout1(pro_features2)
         embedding_features = self.norm1(embedding_features)
         
@@ -320,11 +316,11 @@ class MotionHead(nn.Module):
         flow_features = self.norm2(embedding_features)
         
         # get flow hidden state embeddings
-        hidden_embeddings = flow_features.clone()
+        time_conv_embeddings = flow_features.clone()
         
         # motion prediction.
         position_embedding = position_embedding.view(1, N * nr_boxes, self.d_model)
-        reg_feature = self.motion(position_embedding, flow_features)
+        reg_feature , hidden_em = self.motion(position_embedding, flow_features, hidden_em)
         cls_feature = self.forward_ffn(flow_features)
         cls_feature = cls_feature.transpose(0, 1).reshape(N * nr_boxes, -1) if cls_feature.shape[1] != 0 else cls_feature.transpose(0, 1).flatten(1)
         for cls_layer in self.cls_module:
@@ -337,71 +333,51 @@ class MotionHead(nn.Module):
         # pred_bboxes = self.bboxes_delta(reg_feature).sigmoid()# 归一化的 cx cy w h
         # import pdb;pdb.set_trace()
         if nr_boxes != 0:
-            return class_logits.view(N, nr_boxes, -1), pred_bboxes.view(N, nr_boxes, -1), hidden_embeddings.view(N, nr_boxes, -1)
+            return class_logits.view(N, nr_boxes, -1), pred_bboxes.view(N, nr_boxes, -1), time_conv_embeddings.view(N, nr_boxes, -1), hidden_em
         else:
-            return class_logits.unsqueeze(0), pred_bboxes.unsqueeze(0), hidden_embeddings
+            return class_logits.unsqueeze(0), pred_bboxes.unsqueeze(0), time_conv_embeddings, hidden_em
 
 
 class MotionE(nn.Module):
     def __init__(self, cfg):
         super().__init__()
-
-        self.hidden_dim = cfg.MODEL.MDR.HIDDEN_DIM
-        drop_ratio = cfg.MODEL.MDR.DROPOUT 
-        d_ffn = 1024
-        
-        self.stem = MLP(self.hidden_dim, self.hidden_dim, self.hidden_dim, 1)
-        self.stem_1 = MLP(self.hidden_dim, self.hidden_dim, self.hidden_dim // 2, 2)
-        self.stem_2 = MLP(self.hidden_dim, self.hidden_dim, self.hidden_dim // 2, 2)
-        # ffn_1
-        self.motion_1 = FFN(self.hidden_dim // 2, d_ffn, drop_ratio, self.hidden_dim // 2)
-        # ffn_2
-        self.motion_2 = FFN(self.hidden_dim, d_ffn, drop_ratio, self.hidden_dim)
-        
+        self.d_state = cfg.MODEL.MDR.D_STATE
+        self.d_model = cfg.MODEL.MDR.HIDDEN_DIM
+        self.d_inner = int(cfg.MODEL.MDR.EXPAND * self.d_model)
+        self.dt_rank = math.ceil(self.d_model / 16)
         #-----------------------------------------------------------------------------------
-        # self.in_proj = nn.Linear(args.d_model, args.d_inner * 2, bias=args.bias)# d_model， 2 * e * d_model
-        # # d_model -- 每一个单词（对象）的embedding维度
-        # # d_inner -- expand * d_model -- 扩展因子 * 单个对象的embedding维度
-        
-        # # x_proj takes in `x` and outputs the input-specific Δ, B, C
-        # self.x_proj = nn.Linear(args.d_inner, args.dt_rank + args.d_state * 2, bias=False)# e * d_model ->  d_model // 16 + 1 + d_state*2
-        
-        # # dt_proj projects Δ from dt_rank to d_in
-        # self.dt_proj = nn.Linear(args.dt_rank, args.d_inner, bias=True)# d_model // 16 + 1 -> e * d_model
+        # x_proj takes in `x` and outputs the input-specific Δ, B, C
+        self.x_proj = nn.Linear(self.d_inner, self.dt_rank + self.d_state * 2, bias=False)
+        # e * d_model ->  d_model // 16 + 1 + d_s*2
+        # dt_proj projects Δ from dt_rank to d_in
+        self.dt_proj = nn.Linear(self.dt_rank, self.d_inner, bias=True)
+        # d_model // 16 + 1 -> e * d_model
+        A = repeat(torch.arange(1, self.d_state + 1), 'n -> d n', d=self.d_inner)
+        # 1 * d_model, d_s
+        self.A_log = nn.Parameter(torch.log(A))# e * d_model, d_s
+        self.D = nn.Parameter(torch.ones(self.d_inner))# e * d_model, e * d_model 
+        self.out_proj = nn.Linear(self.d_inner, self.d_model, bias=False)
 
-        # A = repeat(torch.arange(1, args.d_state + 1), 'n -> d n', d=args.d_inner)# e * d_model, d_state 
-        # self.A_log = nn.Parameter(torch.log(A))# e * d_model, d_state 
-        # self.D = nn.Parameter(torch.ones(args.d_inner))# e * d_model, e * d_model 
-
-    def forward(self, position_features, flow_features):
+    def forward(self, position_features, flow_features, h_state=None):
         '''
         position_features: (1,  N * nr_boxes, self.d_model)
         flow_features: (1, N * nr_boxes, self.d_model) --- roi区域内针对对应embedding信息的 流特征 这样的话 区域内不同的实例流特征就可以区分开来
         '''
-        position_features = position_features.permute(1, 0, 2)# N 1 C
-        features = flow_features.permute(1, 2, 0) # N C 1
-        features = torch.bmm(features, features.transpose(1,2))
-        features = self.stem(features)# N C C -- 生成流引导特征
-       
-        matrix1 = self.stem_1(features) # N  C    C/2
-        matrix2 = self.stem_2(features).permute(0, 2, 1) # N  C/2  C -- 生成引导矩阵
-
-        features = torch.bmm(position_features, matrix1)# N 1 C @ N C C/2 -> N  1  C/2
-        features = self.motion_1(features)# N  1  C/2
-
-        features = torch.bmm(features, matrix2)#  N  1  C/2 @ N  C/2  C ->  N  1  C
-        features = self.motion_2(features)#  N  1  C
-
-        features = features.flatten(1) # N C
-        return features
+        # import pdb;pdb.set_trace()
+        position_features = position_features.permute(1,0,2)# N 1 C
+        flow_features = flow_features.permute(1,0,2) # N 1 C
+        # import pdb;pdb.set_trace()
+        y, h_state  = self.ssm(position_features, flow_features, h_state)
+        output= self.out_proj(y)
+        return output.flatten(1), h_state
     
-    def ssm(self, pos_emb, x):
+    def ssm(self, pos_em, flow_em, hidden_state=None):
         """Runs the SSM. See:
             - Algorithm 2 in Section 3.2 in the Mamba paper [1]
             - run_SSM(A, B, C, u) in The Annotated S4 [2]
-
         Args:
-            x: shape (b, l, d_in)    (See Glossary at top for definitions of b, l, d_in, n...)
+            position_features: (b,  l,  d_model)
+            flow_features: (b, l,  d_model) --- roi区域内针对对应embedding信息的 流特征 这样的话 区域内不同的实例流特征就可以区分开来
     
         Returns:
             output: shape (b, l, d_in)
@@ -416,21 +392,20 @@ class MotionE(nn.Module):
         #     A, D are input independent (see Mamba paper [1] Section 3.5.2 "Interpretation of A" for why A isn't selective)
         #     ∆, B, C are input-dependent (this is a key difference between Mamba and the linear time invariant S4,
         #                                  and is why Mamba is called **selective** state spaces)
-        
         A = -torch.exp(self.A_log.float())  # shape (d_in, n)
         D = self.D.float()
-
-        x_dbl = self.x_proj(x)  # (b, l, dt_rank + 2*n)
         
-        (delta, B, C) = x_dbl.split(split_size=[self.args.dt_rank, n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
+        x_dbl = self.x_proj(flow_em)  # (b, l, dt_rank + 2*n) -- flow_em 包含了时序卷积信息的 流特征 --- 从流特征中提取ssm参数信息 -- 用于下一步引导bbox_em的时序变换
+        
+        (delta, B, C) = x_dbl.split(split_size=[self.dt_rank, n, n], dim=-1)  # delta: (b, l, dt_rank). B, C: (b, l, n)
         delta = F.softplus(self.dt_proj(delta))  # (b, l, d_in)
         
-        y = self.selective_scan(x, delta, A, B, C, D)  # This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]
+        y, hidden_state = self.selective_scan(pos_em, hidden_state, delta, A, B, C, D)  # This is similar to run_SSM(A, B, C, u) in The Annotated S4 [2]
         
-        return y
+        return y, hidden_state
 
     
-    def selective_scan(self, u, delta, A, B, C, D):
+    def selective_scan(self, u, h, delta, A, B, C, D):
         """Does selective scan algorithm. See:
             - Section 2 State Space Models in the Mamba paper [1]
             - Algorithm 2 in Section 3.2 in the Mamba paper [1]
@@ -464,46 +439,21 @@ class MotionE(nn.Module):
         # - A is discretized using zero-order hold (ZOH) discretization (see Section 2 Equation 4 in the Mamba paper [1])
         # - B is discretized using a simplified Euler discretization instead of ZOH. From a discussion with authors:
         #   "A is the more important term and the performance doesn't change much with the simplication on B"
-        deltaA = torch.exp(einsum(delta, A, 'b l d_in, d_in n -> b d_in l n'))
-        deltaB_u = einsum(delta, B, u, 'b l d_in, b l n, b l d_in -> b d_in l n')
-        
+        # import pdb;pdb.set_trace()
+        deltaA = torch.exp(einsum(delta, A, 'b l d_in, d_in n -> b l d_in n'))
+        deltaB_u = einsum(delta, B, u, 'b l d_in, b l n, b l d_in -> b l d_in n')
+        # import pdb;pdb.set_trace()
         # Perform selective scan (see scan_SSM() in The Annotated S4 [2])
-        x = torch.zeros((b, d_in, n), device=deltaA.device)
         ys = []    
         for i in range(l):
-            x = deltaA[:, :, i] * x + deltaB_u[:, :, i]
-            y = einsum(x, C[:, i, :], 'b d_in n, b n -> b d_in')
+            h = deltaA[:, i] * h + deltaB_u[:, i]
+            y = einsum(h, C[:, i, :], 'b d_in n, b n -> b d_in')
             ys.append(y)
-        y = torch.stack(ys, dim=1)  # shape (b, l, d_in)
-        
+        y = torch.stack(ys, dim=1) 
+        # shape (b, l, d_in)
         y = y + u * D
-    
-        return y
-
-    
-class TAN(nn.Module):
-    def __init__(self, d_model, ):
-        super().__init__()
-        self.combine = nn.Conv2d(d_model * 2, d_model, kernel_size=1)
         
-        pass
-        
-    def forward(self):
-        pass
-
-class MLP(nn.Module):
-    """ Very simple multi-layer perceptron (also called FFN)"""
-
-    def __init__(self, input_dim, hidden_dim, output_dim, num_layers):
-        super().__init__()
-        self.num_layers = num_layers
-        h = [hidden_dim] * (num_layers - 1)
-        self.layers = nn.ModuleList(nn.Linear(n, k) for n, k in zip([input_dim] + h, h + [output_dim]))
-
-    def forward(self, x):
-        for i, layer in enumerate(self.layers):
-            x = F.relu(layer(x)) if i < self.num_layers - 1 else layer(x)
-        return x
+        return y, h
 
 class FFN(nn.Module):
     def __init__(self, input_dim = 256, d_ffn = 1024, drop_ratio = 0.0, output_dim = 256, act = 'relu'):
