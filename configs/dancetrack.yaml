@@ -1,0 +1,35 @@
+eps: 0.001
+eval_mode: False
+#eval_mode: True
+
+# optimizer
+lr: 0.0001
+# train
+data_dir: "/data/zelinliu/DanceTrack/dancetrack/trackers_gt_t"
+diffnet: HMINet
+interval: 5
+augment: True
+encoder_dim: 256
+tf_layer: 3
+epochs: 500
+batch_size: 2048
+seed: 123
+eval_every: 20
+gpus: [0,]
+
+# Testing
+eval_at: 160
+det_dir: "/data/zelinliu/DanceTrack/dancetrack/detections/val"
+info_dir: "/data/zelinliu/DanceTrack/dancetrack/val"
+reid_dir: "/data/zelinliu/DiffMOT/cache/embeddings/"
+save_dir: "/data/zelinliu/DiffMOT/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
+eval_expname: lt_ddm_1000_deeper
+high_thres: 0.6
+low_thres: 0.4
+w_assoc_emb: 2.2
+aw_param: 1.7
+preprocess_workers: 16
+
+# Data Parameters:
+device: cuda
+eval_device: None

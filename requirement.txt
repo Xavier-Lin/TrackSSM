@@ -1,0 +1,13 @@
+einops
+pyyaml
+argparse
+easydict
+numpy
+tensorboardX
+tqdm
+opencv-python
+scipy
+lap
+cython
+cython-bbox
+fvcore

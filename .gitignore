@@ -15,6 +15,7 @@ wheels/
 
 # pytorch/python/numpy formats
 *.pth
+*.pt
 *.pkl
 *.npy
 *.ts
@@ -61,5 +62,8 @@ events.out.tfevents*
 /datasets/*
 !/datasets/*.*
 /projects/*/datasets
-/models
+/sota
+/experiments
 /snippet
+/READ*
+/cache
