@@ -33,9 +33,9 @@ class D2MP(Module):
             tmp_c[:, 0::2] = tmp_c[:, 0::2] / img_w
             tmp_c[:, 1::2] = tmp_c[:, 1::2] / img_h
             tmp_conds = torch.tensor(tmp_c, dtype=torch.float)
-            if len(tmp_conds) != 5:
-                pad_conds = tmp_conds[-1].repeat((5, 1))
-                tmp_conds = torch.cat((tmp_conds, pad_conds), dim=0)[:5]
+            if len(tmp_conds) != self.config.interval:
+                pad_conds = tmp_conds[-1].repeat((self.config.interval, 1))
+                tmp_conds = torch.cat((tmp_conds, pad_conds), dim=0)[:self.config.interval]
             cond_encodeds.append(tmp_conds.unsqueeze(0))
         cond_encodeds = torch.cat(cond_encodeds)
         # import pdb;pdb.set_trace()
