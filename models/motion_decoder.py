@@ -26,27 +26,15 @@ class Mamba_decoder(nn.Module):
         A = repeat(torch.arange(1, self.d_state + 1), 'n -> d n', d=self.d_inner)
         self.A_log = nn.Parameter(torch.log(A))
         self.D = nn.Parameter(torch.ones(self.d_inner))# e * d_model, e * d_model 
-        # reg. -- MFL -- ept:160 --- 61.2(HOTA) 78.6(MOTA) 73.6(IDF1)
-        # flow_module = list()
-        # for _ in range(3):
-        #     flow_module.append(MFL(d_model, d_model, d_model))
-        
-        # reg. --  nonlinear-regressive -- ept:360 --- 61.2(HOTA) 78.5(MOTA) 73.7(IDF1)
-        # flow_module = list()
-        # for _ in range(3):
-        #     flow_module.append(nn.Linear(d_model, d_model, False))
-        #     flow_module.append(nn.LayerNorm(d_model))
-            # flow_module.append(nn.ReLU(inplace=True))
 
-        # reg. -- FFN -- ept:480 --- 61.4(HOTA) 78.6(MOTA) 74.2(IDF1)
+        # reg. -- FFN -- ept:480 --- 61.4(HOTA) 78.5(MOTA) 74.1(IDF1)
         self.linear1 = nn.Linear(d_model, 512)
-        self.activation = nn.SiLU(inplace=True)
+        self.activation = nn.ReLU(inplace=True)
         self.dropout1 = nn.Dropout(0)
         self.linear2 = nn.Linear(512, d_model)
         self.dropout2 = nn.Dropout(0)
         self.norm2 = nn.LayerNorm(d_model)
 
-        # self.out_proj= nn.ModuleList(flow_module)
         self.normal_bboxes = nn.Linear(d_model, 4) # if dance sports, need to F.sigmoid()
         
     def forward_ffn(self, src):
@@ -67,11 +55,10 @@ class Mamba_decoder(nn.Module):
         pos = F.silu(pos)
         y, h  = self.ssm(pos.unsqueeze(1), flow_features, h)
         y = (y * F.silu(pos1.unsqueeze(1))).flatten(1)
-        # for pos_layer in self.out_proj:
-        #     y = pos_layer(flow_features.flatten(1), y)
         y = self.forward_ffn(y)
-        output = self.normal_bboxes(y)
-        return output, h
+        y = self.normal_bboxes(y)
+        y = F.sigmoid(y)
+        return y, h
     
     def ssm(self, pos_em, flow_em, hidden_state=None):
         """Runs the SSM. See:
