@@ -1,13 +1,205 @@
 import math
 import copy
+from einops import repeat, einsum
+from typing import Optional
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .common import MFL
 from torchvision.ops.boxes import box_area
 from .box_ops import generalized_box_iou, box_cxcywh_to_xyxy
-from einops import repeat, einsum
-    
+
+
+class FeedForward(nn.Module):
+    def __init__(
+        self,
+        dim: Optional[int] = None,
+        inner_dim: Optional[int] = None,
+        dim_out: Optional[int] = None,
+        dropout: Optional[float] = 0.0,
+        no_bias: Optional[bool] = False,
+    ):
+        """
+        FeedForward module that applies a series of linear transformations and activations.
+
+        super().__init__()
+        self.dim = dim
+        self.inner_dim=inner_dim
+        self.dim_out = dim_out
+
+        assert self.dim==self.dim_out
+        
+        self.ff = nn.Sequential(
+            nn.Linear(dim, inner_dim, bias=not no_bias),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(inner_dim, dim_out, bias=not no_bias),
+            nn.Dropout(dropout)
+        )
+        self.norm=nn.LayerNorm(dim_out)
+
+
+
+    def forward(self, x):
+        """
+        Forward pass of the feedforward network
+
+        Args:
+            x (torch.Tensor): Input tensor
+
+        Returns:
+            torch.Tensor: Output tensor
+        """
+        return self.norm(x+self.ff(x))    
+        
+
+class SwitchGate(nn.Module):
+    """
+    SwitchGate module for MoE (Mixture of Experts) model.
+
+    Args:
+        dim (int): Input dimension.
+        num_experts (int): Number of experts.
+        capacity_factor (float, optional): Capacity factor for sparsity. Defaults to 1.0.
+    """
+
+    def __init__(
+        self,
+        dim,
+        num_experts: int,
+        capacity_factor: float = 1.0,
+        epsilon: float = 1e-6,
+    ):
+        super().__init__()
+        self.dim = dim
+        self.num_experts = num_experts
+        self.capacity_factor = capacity_factor
+        self.epsilon = epsilon
+        self.w_gate = nn.Linear(dim, num_experts)
+
+    def forward(self, x: Tensor):
+        """
+        Forward pass of the SwitchGate module.
+
+        Args:
+            x (Tensor): Input tensor.
+
+        Returns:
+            Tensor: Gate scores.
+        """
+        # Compute gate scores
+        gate_scores = F.softmax(self.w_gate(x), dim=-1)
+
+        # Determine the top-1 expert for each token
+        capacity = int(self.capacity_factor * x.size(0))
+
+        top_k_scores, top_k_indices = gate_scores.topk(1, dim=-1)
+
+        # Mask to enforce sparsity
+        mask = torch.zeros_like(gate_scores).scatter_(
+            1, top_k_indices, 1
+        )
+
+        # Combine gating scores with the mask
+        masked_gate_scores = gate_scores * mask
+
+        # Denominators
+        denominators = (
+            masked_gate_scores.sum(0, keepdim=True) + self.epsilon
+        )
+
+        # Norm gate scores to sum to the capacity
+        gate_scores = (masked_gate_scores / denominators) * capacity
+
+        return gate_scores
+
+class SwitchMoE(nn.Module):
+    """
+    A module that implements the Switched Mixture of Experts (MoE) architecture.
+
+    Args:
+        dim (int): The input dimension.
+        hidden_dim (int): The hidden dimension of the feedforward network.
+        output_dim (int): The output dimension.
+        num_experts (int): The number of experts in the MoE.
+        capacity_factor (float, optional): The capacity factor that controls the capacity of the MoE. Defaults to 1.0.
+
+    Attributes:
+        dim (int): The input dimension.
+        hidden_dim (int): The hidden dimension of the feedforward network.
+        output_dim (int): The output dimension.
+        num_experts (int): The number of experts in the MoE.
+        capacity_factor (float): The capacity factor that controls the capacity of the MoE.
+        experts (nn.ModuleList): The list of feedforward networks representing the experts.
+        gate (SwitchGate): The switch gate module.
+
+    """
+
+    def __init__(
+        self,
+        dim: int,
+        hidden_dim: int,
+        output_dim: int,
+        num_experts: int,
+        capacity_factor: float = 1.0,
+    ):
+        super().__init__()
+        self.dim = dim
+        self.hidden_dim = hidden_dim
+        self.output_dim = output_dim
+        self.num_experts = num_experts
+        self.capacity_factor = capacity_factor
+
+        self.experts = nn.ModuleList(
+            [
+                FeedForward(dim=dim,inner_dim=hidden_dim,dim_out=output_dim)
+                for _ in range(num_experts)
+            ]
+        )
+
+        self.gate = SwitchGate(
+            dim,
+            num_experts,
+            capacity_factor,
+        )
+
+    def forward(self, x: Tensor):
+        """
+        Forward pass of the SwitchMoE module.
+
+        Args:
+            x (Tensor): The input tensor.
+
+        Returns:
+            Tensor: The output tensor of the MoE.
+
+        """
+        # (batch_size, seq_len, num_experts)
+        gate_scores= self.gate(x)
+
+        # Dispatch to experts
+        expert_outputs = [expert(x) for expert in self.experts]
+
+        # Check if any gate scores are nan and handle
+        if torch.isnan(gate_scores).any():
+            print("NaN in gate scores")
+            gate_scores[torch.isnan(gate_scores)] = 0
+
+        # Stack and weight outputs
+        stacked_expert_outputs = torch.stack(
+            expert_outputs, dim=-1
+        )  # (batch_size, seq_len, output_dim, num_experts)
+        if torch.isnan(stacked_expert_outputs).any():
+            stacked_expert_outputs[
+                torch.isnan(stacked_expert_outputs)
+            ] = 0
+
+        # Combine expert outputs and gating scores
+        moe_output = torch.sum(
+            gate_scores.unsqueeze(-2) * stacked_expert_outputs, dim=-1
+        )
+        return moe_output
+        
 class Mamba_decoder(nn.Module):
     def __init__(self, d_model = 256, d_s = 16, expand = 1):
         super(Mamba_decoder, self).__init__()
@@ -28,19 +220,23 @@ class Mamba_decoder(nn.Module):
         self.D = nn.Parameter(torch.ones(self.d_inner))# e * d_model, e * d_model 
 
         # reg. -- FFN -- ept:480 --- 61.4(HOTA) 78.5(MOTA) 74.1(IDF1)
-        self.linear1 = nn.Linear(d_model, 512)
-        self.activation = nn.ReLU(inplace=True)
-        self.dropout1 = nn.Dropout(0)
-        self.linear2 = nn.Linear(512, d_model)
-        self.dropout2 = nn.Dropout(0)
-        self.norm2 = nn.LayerNorm(d_model)
+        # self.linear1 = nn.Linear(d_model, 512)
+        # self.activation = nn.ReLU(inplace=True)
+        # self.dropout1 = nn.Dropout(0)
+        # self.linear2 = nn.Linear(512, d_model)
+        # self.dropout2 = nn.Dropout(0)
+        # self.norm2 = nn.LayerNorm(d_model)
+        
+        self.moe_ffn=SwitchMoE(dim=d_model,hidden_dim=512,
+        output_dim=d_model,num_experts=4)
 
         self.normal_bboxes = nn.Linear(d_model, 4) # if dance sports, need to F.sigmoid()
         
     def forward_ffn(self, src):
-        src2 = self.linear2(self.dropout1(self.activation(self.linear1(src))))
-        src = src + self.dropout2(src2)
-        src = self.norm2(src)
+        # src2 = self.linear2(self.dropout1(self.activation(self.linear1(src))))
+        # src = src + self.dropout2(src2)
+        # src = self.norm2(src)
+        self.moe_ffn(src)
         return src
         
     def forward(self, x_0, flow_features, h=None):
