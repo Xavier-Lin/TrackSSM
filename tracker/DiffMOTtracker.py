@@ -80,11 +80,10 @@ class STrack(BaseTrack):
 
             conds = [st.conds for st in stracks]
 
-            # multi_track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
-            # track_pred = multi_track_pred.mean(0)
-            # track_pred = track_pred + dets
-            
-            track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
+            multi_track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
+            track_pred = multi_track_pred.mean(0)
+            track_pred = track_pred + dets
+    
             track_pred[:, 0::2] = track_pred[:, 0::2] * img_w
             track_pred[:, 1::2] = track_pred[:, 1::2] * img_h
             track_pred[:, 0] = track_pred[:, 0] - track_pred[:, 2] / 2

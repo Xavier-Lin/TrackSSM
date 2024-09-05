@@ -174,8 +174,8 @@ class EmbeddingComputer:
             else:
                 return self._get_general_model()
         elif self.dataset == "dance":
-            path = "/data/zelinliu/DiffMOT/cache/embeddings/dance_sbs_S50.pth"
-            # path = "/home/estar/lwy/DiffMOT/external/weights/dancetrack_sbs_S50_hybtid.pth"
+            path = "/data/zelinliu/TrackSSM/cache/embeddings/dance_sbs_S50.pth"
+            # path = "/home/estar/lwy/TrackSSM/external/weights/dancetrack_sbs_S50_hybtid.pth"
         elif self.dataset == "sports":
             path = "/home/estar/lwy/BoT-SORT-main/fast_reid/tools/logs/SportsMOT/sbs_S50/model_0058.pth"
         else:

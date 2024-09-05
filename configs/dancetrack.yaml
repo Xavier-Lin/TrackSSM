@@ -1,29 +1,31 @@
 eps: 0.001
 eval_mode: False
 #eval_mode: True
+use_diffmot: False
 
 # optimizer
 lr: 0.0001
 # train
 data_dir: "/data/zelinliu/DanceTrack/dancetrack/trackers_gt_t"
 diffnet: HMINet
-interval: 5
+interval: 5 #5
 augment: True
 encoder_dim: 256
 tf_layer: 3
-epochs: 500
+epochs: 800
 batch_size: 2048
 seed: 123
 eval_every: 20
-gpus: [0,]
+gpus: [0,1]
 
 # Testing
-eval_at: 160
+eval_at: 120
 det_dir: "/data/zelinliu/DanceTrack/dancetrack/detections/val"
 info_dir: "/data/zelinliu/DanceTrack/dancetrack/val"
-reid_dir: "/data/zelinliu/DiffMOT/cache/embeddings/"
-save_dir: "/data/zelinliu/DiffMOT/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
+reid_dir: "/data/zelinliu/TrackSSM/cache/embeddings/"
+save_dir: "/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
 eval_expname: lt_ddm_1000_deeper
+use_detection_model: False
 high_thres: 0.6
 low_thres: 0.4
 w_assoc_emb: 2.2

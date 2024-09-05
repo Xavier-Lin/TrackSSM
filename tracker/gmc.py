@@ -41,7 +41,7 @@ class GMC:
             if ablation:
                 filePath = r'tracker/GMC_files/MOT17_ablation'
             else:
-                filePath = r'/home/estar/lwy/DiffMOT/cache/cmc_files/DanceTrack'
+                filePath = r'/home/estar/lwy/TrackSSM/cache/cmc_files/DanceTrack'
 
             # if '-FRCNN' in seqName:
             #     seqName = seqName[:-6]

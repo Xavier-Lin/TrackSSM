@@ -25,7 +25,7 @@ class STrack(BaseTrack):
         self.xywh_pmemory = deque([], maxlen=buffer_size)
         self.xywh_amemory = deque([], maxlen=buffer_size)
 
-        self.conds = deque([], maxlen=5)
+        self.conds = deque([], maxlen = 5)
 
 
         self._tlwh = np.asarray(tlwh, dtype=np.float)
@@ -56,7 +56,7 @@ class STrack(BaseTrack):
                 stracks[i].covariance = cov
 
     @staticmethod
-    def multi_predict_diff(stracks, model, img_w, img_h):
+    def multi_predict_diff(stracks, model, img_w, img_h, use_diffmot):
         if len(stracks) > 0:
             dets = np.asarray([st.xywh.copy() for st in stracks]).reshape(-1, 4)
 
@@ -64,11 +64,12 @@ class STrack(BaseTrack):
             dets[:, 1::2] = dets[:, 1::2] / img_h
 
             conds = [st.conds for st in stracks]
-
-            # multi_track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
-            # track_pred = multi_track_pred.mean(0)
-            # track_pred = track_pred + dets
-            track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
+            if use_diffmot:
+                multi_track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
+                track_pred = multi_track_pred.mean(0)
+                track_pred = track_pred + dets
+            else:
+                track_pred = model.generate(conds, sample=1, bestof=True, img_w=img_w, img_h=img_h)
             
             track_pred[:, 0::2] = track_pred[:, 0::2] * img_w
             track_pred[:, 1::2] = track_pred[:, 1::2] * img_h
@@ -269,7 +270,7 @@ class BYTETracker(object):
         ''' Step 2: First association, with high score detection boxes'''
         strack_pool = joint_stracks(tracked_stracks, self.lost_stracks)
         # Predict the current location with KF
-        STrack.multi_predict_diff(strack_pool, self.model, img_w, img_h)
+        STrack.multi_predict_diff(strack_pool, self.model, img_w, img_h, self.config.use_diffmot)
         
         #vis
         # import pdb;pdb.set_trace()

@@ -76,7 +76,7 @@ def weights_init_normal(m):
         torch.nn.init.constant_(m.bias.data, 0.0)
 
 
-def xyxy2xywh(x):
+def xyxy2cxcywh(x):
     # Convert bounding box format from [x1, y1, x2, y2] to [x, y, w, h]
     y = torch.zeros(x.shape) if x.dtype is torch.float32 else np.zeros(x.shape)
     y[:, 0] = (x[:, 0] + x[:, 2]) / 2
@@ -85,6 +85,11 @@ def xyxy2xywh(x):
     y[:, 3] = x[:, 3] - x[:, 1]
     return y
 
+def xyxy2xywh(x):
+    # Convert bounding box format from [x1, y1, x2, y2] to [x, y, w, h]
+    x[:, 2] = x[:, 2] - x[:, 0]
+    x[:, 3] = x[:, 3] - x[:, 1]
+    return x
 
 def xywh2xyxy(x):
     # Convert bounding box format from [x, y, w, h] to [x1, y1, x2, y2]

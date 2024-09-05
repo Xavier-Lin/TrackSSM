@@ -1,6 +1,7 @@
 eps: 0.001
 #eval_mode: False
 eval_mode: True
+use_diffmot: False
 
 # optimizer
 lr: 0.0001
@@ -18,12 +19,13 @@ eval_every: 20
 gpus: [0,]
 
 # Testing
-eval_at: 700
-det_dir: "/data/zelinliu/sportsmot/detections/val"
-info_dir: "/data/zelinliu/sportsmot/val"
-reid_dir: "/data/zelinliu/DiffMOT/cache/embeddings/"
-save_dir: "/data/zelinliu/DiffMOT/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
+eval_at: 340 #
+det_dir: "/data/zelinliu/sportsmot/detections/test"
+info_dir: "/data/zelinliu/sportsmot/test"
+reid_dir: "/data/zelinliu/TrackSSM/cache/embeddings/"
+save_dir: "/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_340_ept"
 eval_expname: lt_ddm_1000_deeper
+use_detection_model: False
 high_thres: 0.6
 low_thres: 0.1
 w_assoc_emb: 2.0

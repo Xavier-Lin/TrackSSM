@@ -313,8 +313,8 @@ def dti(txt_path, save_path, n_min=25, n_dti=20):
 if __name__ == '__main__':
     # data_root = '/data/zelinliu/DanceTrack/dancetrack/test'
     data_root = '/data/zelinliu/MOT17/train'
-    txt_path = '/data/zelinliu/DiffMOT/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev'
-    save_path = '/data/zelinliu/DiffMOT/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev_dti'
+    txt_path = '/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev'
+    save_path = '/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev_dti'
     
     mkdir_if_missing(save_path)
     dti(txt_path, save_path, n_min=5, n_dti=20)
