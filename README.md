@@ -17,15 +17,12 @@
 ### Results on MOT challenge test set
 | Dataset    | HOTA | MOTA | IDF1 | AssA | DetA | 
 |------------|-------|-------|------|------|-------|
-|MOT17       | 61.4 | 81.0 | 80.1 | 54.6% | 14.3% |
+|MOT17       | 61.4 |   |   |   |   |
 |DanceTrack  | 57.7 | 92.2 | 57.5 | 41.0 | 81.5  |
-|SportsMOT   | 63.4 | 78.2 | 77.3 | 69.9% | 9.2%  |
+|SportsMOT   | 74.4 |  |  |  |   |
 
  ### Comparison on DanceTrack test set
-|  Method  | HOTA | DetA | AssA | MOTA | IDF1 |
-|------------|-------|-------|------|------|-------|
-| SparseTrack | 55.5 (**+7.8**) | 78.9 (**+7.9**) | 39.1 (**+7.0**) | 91.3 (**+1.7**) | 58.3 (**+4.4**) |
-| ByteTrack  |  47.7 | 71.0 | 32.1 | 89.6 | 53.9 | 
+
     
 **Notes**: 
 
