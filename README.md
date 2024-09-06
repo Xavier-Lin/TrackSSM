@@ -87,10 +87,20 @@ python main.py --config ./configs/mot.yaml
 
 
 ## Tracking
+#### Tracking on MOT17 test set
+```
+python main.py --config ./configs/mot17_test.yaml
+```
 
+#### Tracking on DanceTrack test set
+```
+python main.py --config ./configs/dancetrack_test.yaml
+```
 
-#### Tracking on dancetrack test set
-
+#### Tracking on SportsMOT test set
+```
+python main.py --config ./configs/sportsmot_test.yaml
+```
 
  
 ## Citation -->
