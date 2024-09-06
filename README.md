@@ -136,7 +136,7 @@ python main.py --config ./configs/sportsmot_test.yaml
 ```
 
 ## Acknowledgements
-A large part of the code is borrowed from [DiffMOT](https://github.com/Kroery/DiffMOT), [FairMOT](https://github.com/ifzhang/FairMOT), [ByteTrack](https://github.com/ifzhang/ByteTrack). 
+A large part of the code is borrowed from [Mamba](https://github.com/state-spaces/mamba),[DiffMOT](https://github.com/Kroery/DiffMOT), [FairMOT](https://github.com/ifzhang/FairMOT), [ByteTrack](https://github.com/ifzhang/ByteTrack). 
  Many thanks for their wonderful works.
 
 
