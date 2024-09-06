@@ -30,6 +30,8 @@
 > Compiling [mamba](https://github.com/state-spaces/mamba)
 > 
 > Running: pip install -r requirement.txt
+>
+> cd external/YOLOX,run: python setup.py develop
 
 
 ## Data preparation
