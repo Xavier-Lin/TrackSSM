@@ -83,7 +83,7 @@ python main.py --config ./configs/mot.yaml
 **Notes**:
   - For MIX, we should unenable line 60 in [motion_decoder.py](https://github.com/Xavier-Lin/TrackSSM/blob/main/models/motion_decoder.py).
   - For MIX and DanceTrack, we should unenable GIoU loss in [motion_decoder.py](https://github.com/Xavier-Lin/TrackSSM/blob/main/models/motion_decoder.py).
-  - For SportsMOT,  we should use GIoU loss in [motion_decoder.py](https://github.com/Xavier-Lin/TrackSSM/blob/main/models/motion_decoder.py).
+  - For SportsMOT,  we should use both GIoU loss and smooth L1 loss in [motion_decoder.py](https://github.com/Xavier-Lin/TrackSSM/blob/main/models/motion_decoder.py).
 
 
 ## Tracking
