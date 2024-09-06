@@ -112,7 +112,7 @@ python main.py --config ./configs/sportsmot_test.yaml
   - The ***interval*** the length of the historical trajectory involved in training and inference.
 
  
-## Citation -->
+## Citation
 ```bibtex
 @misc{trackssm,
       title={TrackSSM: A General Motion Predictor by State-Space Model}, 
