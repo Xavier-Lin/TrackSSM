@@ -58,6 +58,10 @@ ROOT
                          └——————val.txt
                          └——————test.txt
 ```
+and then, run
+```
+
+```
 
 
 ## Model zoo
@@ -109,8 +113,20 @@ python main.py --config ./configs/sportsmot_test.yaml
 
  
 ## Citation -->
-
+```bibtex
+@misc{trackssm,
+      title={TrackSSM: A General Motion Predictor by State-Space Model}, 
+      author={Bin Hu and Run Luo and Zelin Liu and Cheng Wang and Wenyu Liu},
+      year={2024},
+      eprint={2409.00487},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2409.00487}, 
+}
+```
 
 ## Acknowledgements
+A large part of the code is borrowed from [DiffMOT](https://github.com/Kroery/DiffMOT), [FairMOT](https://github.com/ifzhang/FairMOT), [ByteTrack](https://github.com/ifzhang/ByteTrack). 
+ Many thanks for their wonderful works.
 
 
