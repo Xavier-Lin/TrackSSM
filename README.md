@@ -67,7 +67,7 @@ python mot_data_process.py
 
 ## Model zoo
 ### Detection Model
-Refer to [Detection Model](https://github.com/Kroery/DiffMOT).
+Refer to [Detection Model](https://github.com/Kroery/DiffMOT/releases/tag/v1.0).
 
 ### Motion Model
 Refer to [Motion Model].
