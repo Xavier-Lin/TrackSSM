@@ -21,69 +21,52 @@
 |DanceTrack  | 57.7 | 92.2 | 57.5 | 41.0 | 81.5  |
 |SportsMOT   | 74.4 |  |  |  |   |
 
- ### Comparison on DanceTrack test set
-
-    
-**Notes**: 
-
  
 ## Installation
 #### Dependence
-This project is an implementation version of [Detectron2](https://github.com/facebookresearch/detectron2) and requires the compilation of [OpenCV](https://opencv.org/), [Boost](https://www.boost.org).
-
-#### Compile GMC(Globle Motion Compensation) module
 
  
 #### Install
 
 
 ## Data preparation
-Download [MOT17](https://motchallenge.net/), [MOT20](https://motchallenge.net/), [CrowdHuman](https://www.crowdhuman.org/), [Cityperson](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md), [ETHZ](https://github.com/Zhongdao/Towards-Realtime-MOT/blob/master/DATASET_ZOO.md) and put them under ROOT/ in the following structure:
+Download [MOT17](https://motchallenge.net/), [MOT20](https://motchallenge.net/), [DanceTrack](https://github.com/DanceTrack/DanceTrack), [SportsMOT](https://github.com/MCG-NJU/SportsMOT) and put them under ROOT/ in the following structure. The structure of the MIX dataset follows the method used in [DiffMOT](https://github.com/Kroery/DiffMOT):
 ```
 ROOT
    |
-   |——————SparseTrack(repo)
-   |           └—————mix
-   |                  └——————mix_17/annotations
-   |                  └——————mix_20/annotations
-   |                  └——————ablation_17/annotations
-   |                  └——————ablation_20/annotations
-   |——————MOT17
-   |        └——————train
-   |        └——————test
-   └——————crowdhuman
-   |         └——————Crowdhuman_train
-   |         └——————Crowdhuman_val
-   |         └——————annotation_train.odgt
-   |         └——————annotation_val.odgt
-   └——————MOT20
-   |        └——————train
-   |        └——————test
-   └——————Citypersons
-   |        └——————images
-   |        └——————labels_with_ids
-   └——————ETHZ
-   |        └——————eth01
-   |        └——————...
-   |        └——————eth07
-   └——————dancetrack
-               └——————train
-               └——————train_seqmap.txt
-               └——————test
-               └——————test_seqmap.txt
-               └——————val
-               └——————val_seqmap.txt
-
-   
+   |——————TrackSSM(repo)
+   |                         
+   |——————mot(MIX)
+   |        └——————train(MOT17 train set and MOT20 train set)
+   |        └——————test(MOT17 test set and MOT20 test set)
+   |——————DanceTrack
+   |           └——————train
+   |           └——————train_seqmap.txt
+   |           └——————test
+   |           └——————test_seqmap.txt
+   |           └——————val
+   |           └——————val_seqmap.txt
+   └——————SportsMOT
+              └——————train
+              └——————test
+              └——————val
+              └——————splits_txt
+                         └——————train.txt
+                         └——————val.txt
+                         └——————test.txt
 ```
 
 
 ## Model zoo
+### Detection Model
+Refer to [Detection Model](https://github.com/Kroery/DiffMOT).
 
+### Motion Model
+Refer to [Motion Model].
 
 
 ## Training
-
+change
 **Notes**: 
 
 
