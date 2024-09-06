@@ -17,9 +17,9 @@
 ### Results on MOT challenge test set
 | Dataset    | HOTA | MOTA | IDF1 | AssA | DetA | 
 |------------|-------|-------|------|------|-------|
-|MOT17       | 61.4 |   |   |   |   |
-|DanceTrack  | 57.7 | 92.2 | 57.5 | 41.0 | 81.5  |
-|SportsMOT   | 74.4 |  |  |  |   |
+|MOT17       | 61.4 | 78.5 | 74.1 | 59.6 | 63.6 |
+|DanceTrack  | 57.7 | 92.2 | 57.5 | 41.0 | 81.5 |
+|SportsMOT   | 74.4 | 96.8 | 74.5 | 62.4 | 88.8 |
 
  
 ## Installation
