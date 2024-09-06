@@ -60,9 +60,10 @@ ROOT
 ```
 and then, run
 ```
-
+python dancetrack_data_process.py
+python sports_data_process.py
+python mot_data_process.py
 ```
-
 
 ## Model zoo
 ### Detection Model
