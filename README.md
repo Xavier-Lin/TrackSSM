@@ -101,6 +101,10 @@ python main.py --config ./configs/dancetrack_test.yaml
 ```
 python main.py --config ./configs/sportsmot_test.yaml
 ```
+**Notes**:
+  - For tracking on MOT17, we should unenable line 60 in [motion_decoder.py](https://github.com/Xavier-Lin/TrackSSM/blob/main/models/motion_decoder.py).
+  - Before perform tracking process, change det_dir, info_dir and save_dir in config files.
+  - The ***use_detection_model*** is an optional item. When making the ***use_detection_model*** project effective, the detector will participate in the process of tracking inference, not just the motion model.
 
  
 ## Citation -->
