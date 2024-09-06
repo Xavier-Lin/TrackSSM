@@ -25,6 +25,7 @@ info_dir: '/mnt/8T/home/estar/data/DanceTrack/val'
 reid_dir: "/home/estar/lwy/TrackSSM/cache/embeddings/"
 save_dir: "/mnt/8T/home/estar/data/DanceTrack/results/val/yolox_m_lt_ddm_1000eps_deeper_800_1rev"
 eval_expname: mot_ddm_1000_deeper
+show_image: False
 use_detection_model: False
 high_thres: 0.6
 low_thres: 0.1

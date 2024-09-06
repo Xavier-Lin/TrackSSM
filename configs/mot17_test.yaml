@@ -25,6 +25,7 @@ info_dir: "/data/zelinliu/MOT17/train"
 reid_dir: "/data/zelinliu/TrackSSM/cache/embeddings/"
 save_dir: "/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ept"
 eval_expname: mot_ddm_1000_deeper
+show_image: False
 use_detection_model: False
 det_ckpt: "bytetrack_x_mot17.pth.tar"
 exp_path: "external/YOLOX/exps/mot/yolox_x_mix_det.py"

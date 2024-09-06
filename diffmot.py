@@ -19,6 +19,7 @@ from tracker.BYTETracker_inital import BYTETracker_KF
 from tracking_utils.utils import xyxy2xywh
 from tracking_utils.log import logger
 from tracking_utils.timer import Timer
+from tracking_utils.visualization import plot_tracking
 
 def write_results(filename, results, data_type='mot'):
     if data_type == 'mot':
@@ -114,6 +115,9 @@ class DiffMOT():
             tensor_type = torch.cuda.HalfTensor if self.half else torch.cuda.FloatTensor
             if self.half:
                 detection_model = detection_model.half()
+                
+        result_root = self.config.save_dir
+        mkdirs(result_root)
         
         n_frame = 0
         timer_avgs, timer_calls = [], []
@@ -138,7 +142,8 @@ class DiffMOT():
             frames.sort()
             imgs = [s for s in os.listdir(img_path)]
             imgs.sort()
-
+            if self.config.show_image:
+                mkdirs(f'{result_root}/{seq}')
             for i, f in enumerate(frames):
                 if frame_id % 10 == 0:
                     logger.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
@@ -169,10 +174,13 @@ class DiffMOT():
                 timer.toc()
                 # save results
                 results.append((frame_id + 1, online_tlwhs, online_ids))
+                if self.config.show_image:
+                    img = cv2.imread(osp.join(img_path, imgs[i]))
+                    online_im = plot_tracking(img.copy(), online_tlwhs, online_ids, frame_id=frame_id,
+                                                fps=1. / timer.average_time)
+                    cv2.imwrite(os.path.join(f'{result_root}/{seq}', '{:05d}.jpg'.format(frame_id)), online_im)
                 frame_id += 1
 
-            result_root = self.config.save_dir
-            mkdirs(result_root)
             result_filename = osp.join(result_root, '{}.txt'.format(seq))
             write_results(result_filename, results)
             nf, ta, tc = len(frames), timer.average_time, timer.calls
@@ -246,7 +254,7 @@ class DiffMOT():
             if not self.config.eval_mode:
                 checkpoint_dir = osp.join(self.model_dir, f"{self.config.dataset}_epoch{epoch}.pt")
             else:
-                checkpoint_dir = osp.join( f"sota/{self.config.exp_name}/FFN_epoch{epoch}.pt")
+                checkpoint_dir = osp.join( f"weights/sota/{self.config.exp_name}/FFN_epoch{epoch}.pt")
                 # checkpoint_dir = osp.join( f"ablation/tracklen/dance/_epoch120.pt")
                 # checkpoint_dir = osp.join( f"./SportsMOT_epoch1200.pt")
             self.checkpoint = torch.load(checkpoint_dir, map_location = "cpu")

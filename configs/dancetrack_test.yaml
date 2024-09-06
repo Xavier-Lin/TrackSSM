@@ -6,7 +6,7 @@ use_diffmot: False
 # optimizer
 lr: 0.0001
 # train
-data_dir: "/home/binhu/DanceTrack/dancetrack/trackers_gt_t"
+data_dir: "/data/zelinliu/DanceTrack/dancetrack/trackers_gt_t"
 diffnet: HMINet
 interval: 5 #5
 augment: True
@@ -20,12 +20,13 @@ gpus: [0,]
 
 # Testing
 eval_at: 120 # 120--53.8
-det_dir: "/home/binhu/DanceTrack/dancetrack/detections/val"
-info_dir: "/home/binhu/DanceTrack/dancetrack/val"
-reid_dir: "/home/binhu/TrackSSM/cache/embeddings/"
-save_dir: "/home/binhu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_140ept"
+det_dir: "/data/zelinliu/DanceTrack/dancetrack/detections/val"
+info_dir: "/data/zelinliu/DanceTrack/dancetrack/val"
+reid_dir: "/data/zelinliu/TrackSSM/cache/embeddings/"
+save_dir: "/data/zelinliu/TrackSSM/results/val/yolox_m_lt_ddm_1000eps_deeper_140ept"
 eval_expname: lt_ddm_1000_deeper
-use_detection_model: True
+show_image: False
+use_detection_model: False
 det_ckpt: "DanceTrack_yolox_l.tar"
 exp_path: "external/YOLOX/exps/dancetrack/yolox_l_mix_det.py"
 high_thres: 0.6
