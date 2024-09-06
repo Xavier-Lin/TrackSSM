@@ -70,7 +70,13 @@ python mot_data_process.py
 Refer to [Detection Model](https://github.com/Kroery/DiffMOT/releases/tag/v1.0).
 
 ### Motion Model
-Refer to [Motion Model].
+Refer to :
+[DanceTrack-57.7 HOTA](https://drive.google.com/file/d/1VvOjZNG3QPI4TPWl13ibUzuVvFyxCTa9/view?usp=drive_link).
+[SportsMOT-74.4 HOTA](https://drive.google.com/file/d/1Uu6S-kYZoTZAq1RbwlZtyBH5Y42W7vB2/view?usp=drive_link).
+
+
+
+
 
 
 ## Training
