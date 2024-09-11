@@ -14,7 +14,7 @@
 - Submitting the paper on Arxiv at Sep 4 2024.
  
 ## Tracking performance
-### Results on MOT challenge test set
+### Results on MOT17, DanceTrack, SportsMOT test set
 | Dataset    | HOTA | MOTA | IDF1 | AssA | DetA | 
 |------------|-------|-------|------|------|-------|
 |MOT17       | 61.4 | 78.5 | 74.1 | 59.6 | 63.6 |
