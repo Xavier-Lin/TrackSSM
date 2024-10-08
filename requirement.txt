@@ -2,7 +2,9 @@ einops
 pyyaml
 argparse
 easydict
-numpy
+motmetrics
+numpy==1.23.5
+setuptools==59.5.0
 tensorboardX
 tqdm
 opencv-python
