@@ -3,8 +3,7 @@ pyyaml
 argparse
 easydict
 motmetrics
-numpy==1.23.5
-setuptools==59.5.0
+numpy
 tensorboardX
 tqdm
 opencv-python
