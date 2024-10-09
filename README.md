@@ -31,7 +31,7 @@
 > 
 > Running: pip install -r requirement.txt
 >
-> cd external/YOLOX,run: python setup.py develop
+> cd external/YOLOX,run: pip install -r requirements.txt && python setup.py develop
 
 
 ## Data preparation
